@@ -4,7 +4,7 @@ services:
       context: https://github.com/jwplatta/tickrake.git#main
     image: tickrake:latest
     env_file:
-      - ../env/common.env
+      - ../env/secrets.env
       - ../env/dev.env
     environment:
       TICKRAKE_JOB: spx_short_options
@@ -17,7 +17,7 @@ services:
   spx_long_options:
     image: tickrake:latest
     env_file:
-      - ../env/common.env
+      - ../env/secrets.env
       - ../env/dev.env
     environment:
       TICKRAKE_JOB: spx_long_options
