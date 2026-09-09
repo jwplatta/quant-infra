@@ -1,0 +1,91 @@
+services:
+  stock_options:
+    build:
+      context: https://github.com/jwplatta/tickrake.git#main
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/prod.env
+    environment:
+      TICKRAKE_JOB: stock_options
+    volumes:
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+    restart: unless-stopped
+
+  etf_options:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/prod.env
+    environment:
+      TICKRAKE_JOB: etf_options
+    volumes:
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+    restart: unless-stopped
+
+  spx_0dte_options:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/prod.env
+    environment:
+      TICKRAKE_JOB: spx_0dte_options
+    volumes:
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+    restart: unless-stopped
+
+  spx_short_dated_options:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/prod.env
+    environment:
+      TICKRAKE_JOB: spx_short_dated_options
+    volumes:
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+    restart: unless-stopped
+
+  spx_longer_dated_options:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/prod.env
+    environment:
+      TICKRAKE_JOB: spx_longer_dated_options
+    volumes:
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+    restart: unless-stopped
+
+  compact_spxw:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/prod.env
+    environment:
+      TICKRAKE_JOB: compact_spxw
+    volumes:
+      - ~/.tickrake:/root/.tickrake
+      - ~/.aws:/root/.aws:ro
+    restart: unless-stopped
+
+  compact_non_spxw_option_samples:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/prod.env
+    environment:
+      TICKRAKE_JOB: compact_non_spxw_option_samples
+    volumes:
+      - ~/.tickrake:/root/.tickrake
+      - ~/.aws:/root/.aws:ro
+    restart: unless-stopped
