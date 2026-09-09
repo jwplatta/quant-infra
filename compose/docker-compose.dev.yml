@@ -7,11 +7,12 @@ services:
       - ../env/secrets.env
       - ../env/dev.env
     environment:
-      TICKRAKE_JOB: spx_short_options
+      TICKRAKE_JOB_FILE: /root/jobs/spx_short_options.rb
     volumes:
       - ~/.tickrake-dev:/root/.tickrake-dev
-      - ~/.schwab_rb:/root/.schwab_rb:ro
+      - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
+      - ../jobs:/root/jobs:ro
     restart: unless-stopped
 
   spx_long_options:
@@ -20,9 +21,24 @@ services:
       - ../env/secrets.env
       - ../env/dev.env
     environment:
-      TICKRAKE_JOB: spx_long_options
+      TICKRAKE_JOB_FILE: /root/jobs/spx_long_options.rb
     volumes:
       - ~/.tickrake-dev:/root/.tickrake-dev
-      - ~/.schwab_rb:/root/.schwab_rb:ro
+      - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
+      - ../jobs:/root/jobs:ro
+    restart: unless-stopped
+
+  compact_spxw:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/dev.env
+    environment:
+      TICKRAKE_JOB_FILE: /root/jobs/compact_spxw.rb
+    volumes:
+      - ~/.tickrake-dev:/root/.tickrake-dev
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+      - ../jobs:/root/jobs:ro
     restart: unless-stopped
