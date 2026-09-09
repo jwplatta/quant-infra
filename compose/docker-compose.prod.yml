@@ -7,8 +7,9 @@ services:
       - ../env/secrets.env
       - ../env/prod.env
     environment:
-      TICKRAKE_JOB: stock_options
+      TICKRAKE_JOB_FILE: /jobs/stock_options.rb
     volumes:
+      - ~/repos/quant-infra/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
@@ -20,8 +21,9 @@ services:
       - ../env/secrets.env
       - ../env/prod.env
     environment:
-      TICKRAKE_JOB: etf_options
+      TICKRAKE_JOB_FILE: /jobs/etf_options.rb
     volumes:
+      - ~/repos/quant-infra/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
@@ -33,8 +35,9 @@ services:
       - ../env/secrets.env
       - ../env/prod.env
     environment:
-      TICKRAKE_JOB: spx_0dte_options
+      TICKRAKE_JOB_FILE: /jobs/spx_0dte_options.rb
     volumes:
+      - ~/repos/quant-infra/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
@@ -46,8 +49,9 @@ services:
       - ../env/secrets.env
       - ../env/prod.env
     environment:
-      TICKRAKE_JOB: spx_short_dated_options
+      TICKRAKE_JOB_FILE: /jobs/spx_short_dated_options.rb
     volumes:
+      - ~/repos/quant-infra/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
@@ -59,8 +63,23 @@ services:
       - ../env/secrets.env
       - ../env/prod.env
     environment:
-      TICKRAKE_JOB: spx_longer_dated_options
+      TICKRAKE_JOB_FILE: /jobs/spx_longer_dated_options.rb
     volumes:
+      - ~/repos/quant-infra/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+    restart: unless-stopped
+
+  futures_candles:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/prod.env
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/futures_candles.rb
+    volumes:
+      - ~/repos/quant-infra/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
@@ -72,8 +91,9 @@ services:
       - ../env/secrets.env
       - ../env/prod.env
     environment:
-      TICKRAKE_JOB: compact_spxw
+      TICKRAKE_JOB_FILE: /jobs/compact_spxw.rb
     volumes:
+      - ~/repos/quant-infra/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
       - ~/.aws:/root/.aws:ro
     restart: unless-stopped
@@ -84,8 +104,9 @@ services:
       - ../env/secrets.env
       - ../env/prod.env
     environment:
-      TICKRAKE_JOB: compact_non_spxw_option_samples
+      TICKRAKE_JOB_FILE: /jobs/compact_non_spxw_option_samples.rb
     volumes:
+      - ~/repos/quant-infra/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
       - ~/.aws:/root/.aws:ro
     restart: unless-stopped
