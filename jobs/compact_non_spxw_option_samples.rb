@@ -5,7 +5,6 @@ require "tickrake"
 
 Tickrake.job "compact_non_spxw_option_samples" do
   provider :schwab
-  type :maintenance
 
   schedule do
     at "15:40"

@@ -5,7 +5,6 @@ require "tickrake"
 
 Tickrake.job "etf_options" do
   provider :schwab
-  type :options
   universe "etf_option_symbols"
 
   schedule do

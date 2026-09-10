@@ -5,7 +5,6 @@ require "tickrake"
 
 Tickrake.job "futures_candles" do
   provider :schwab
-  type :candles
   symbols "/ES", "/NQ", "/RTY", "/YM"
   lookback 90.days
 

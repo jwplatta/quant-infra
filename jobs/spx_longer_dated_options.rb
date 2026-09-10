@@ -5,7 +5,6 @@ require "tickrake"
 
 Tickrake.job "spx_longer_dated_options" do
   provider :schwab
-  type :options
   universe "spx_symbols"
 
   schedule do

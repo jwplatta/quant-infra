@@ -5,7 +5,6 @@ require "tickrake"
 
 Tickrake.job "stock_options" do
   provider :schwab
-  type :options
   universe "stock_option_symbols"
 
   schedule do

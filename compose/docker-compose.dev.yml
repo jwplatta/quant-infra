@@ -29,6 +29,20 @@ services:
       - ../jobs:/root/jobs:ro
     restart: unless-stopped
 
+  es_futures_quotes:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/dev.env
+    environment:
+      TICKRAKE_JOB_FILE: /root/jobs/es_futures_quotes.rb
+    volumes:
+      - ~/.tickrake-dev:/root/.tickrake-dev
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+      - ../jobs:/root/jobs:ro
+    restart: unless-stopped
+
   compact_spxw:
     image: tickrake:latest
     env_file:
