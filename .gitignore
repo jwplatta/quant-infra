@@ -1,3 +1,4 @@
 env/secrets.env
 env/prod.env
 env/dev.env
+/tmp
