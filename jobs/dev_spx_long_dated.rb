@@ -9,7 +9,7 @@ Tickrake.job "spx_long_options" do
 
   schedule do
     every 10.minutes
-    weekdays from: "08:30", to: "15:05"
+    weekdays from: "08:31", to: "15:05"
   end
 
   options do
