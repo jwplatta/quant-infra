@@ -1,5 +1,5 @@
 services:
-  spx_short_options:
+  es_futures_quotes:
     build:
       context: https://github.com/jwplatta/tickrake.git#main
     image: tickrake:latest
@@ -7,7 +7,7 @@ services:
       - ../env/secrets.env
       - ../env/dev.env
     environment:
-      TICKRAKE_JOB_FILE: /root/jobs/spx_short_options.rb
+      TICKRAKE_JOB_FILE: /root/jobs/dev_es_futures_quotes.rb
     volumes:
       - ~/.tickrake-dev:/root/.tickrake-dev
       - ~/.schwab_rb:/root/.schwab_rb
@@ -15,13 +15,28 @@ services:
       - ../jobs:/root/jobs:ro
     restart: unless-stopped
 
-  spx_long_options:
+  events_ingestor:
     image: tickrake:latest
     env_file:
       - ../env/secrets.env
       - ../env/dev.env
     environment:
-      TICKRAKE_JOB_FILE: /root/jobs/spx_long_options.rb
+      TICKRAKE_JOB_FILE: /root/jobs/events_ingestor.rb
+    volumes:
+      - ~/.tickrake-dev:/root/.tickrake-dev
+      - ~/.aws:/root/.aws:ro
+      - ../jobs:/root/jobs:ro
+    restart: unless-stopped
+
+  spx_short_dated:
+    # build:
+    #   context: https://github.com/jwplatta/tickrake.git#main
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/dev.env
+    environment:
+      TICKRAKE_JOB_FILE: /root/jobs/dev_spx_short_dated.rb
     volumes:
       - ~/.tickrake-dev:/root/.tickrake-dev
       - ~/.schwab_rb:/root/.schwab_rb
@@ -29,13 +44,13 @@ services:
       - ../jobs:/root/jobs:ro
     restart: unless-stopped
 
-  es_futures_quotes:
+  spx_long_dated:
     image: tickrake:latest
     env_file:
       - ../env/secrets.env
       - ../env/dev.env
     environment:
-      TICKRAKE_JOB_FILE: /root/jobs/es_futures_quotes.rb
+      TICKRAKE_JOB_FILE: /root/jobs/dev_spx_long_dated.rb
     volumes:
       - ~/.tickrake-dev:/root/.tickrake-dev
       - ~/.schwab_rb:/root/.schwab_rb
@@ -43,16 +58,71 @@ services:
       - ../jobs:/root/jobs:ro
     restart: unless-stopped
 
-  compact_spxw:
+  archive_option_samples:
     image: tickrake:latest
     env_file:
       - ../env/secrets.env
       - ../env/dev.env
     environment:
-      TICKRAKE_JOB_FILE: /root/jobs/compact_spxw.rb
+      TICKRAKE_JOB_FILE: /root/jobs/dev_archive_option_samples.rb
     volumes:
       - ~/.tickrake-dev:/root/.tickrake-dev
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
       - ../jobs:/root/jobs:ro
     restart: unless-stopped
+
+  metadata_sync:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/dev.env
+    environment:
+      TICKRAKE_JOB_FILE: /root/jobs/metadata_sync.rb
+    volumes:
+      - ~/.tickrake-dev:/root/.tickrake-dev
+      - ../jobs:/root/jobs:ro
+    restart: unless-stopped
+
+  intraday_publisher:
+    image: tickrake:latest
+    env_file:
+      - ../env/secrets.env
+      - ../env/dev.env
+    environment:
+      TICKRAKE_JOB_FILE: /root/jobs/intraday_publisher.rb
+    volumes:
+      - ~/.tickrake-dev:/root/.tickrake-dev
+      - ../jobs:/root/jobs:ro
+    depends_on:
+      - minio
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  minio_init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+        sleep 3 &&
+        mc alias set local http://minio:9000 minioadmin minioadmin &&
+        mc mb --ignore-existing local/tickrake-intraday &&
+        echo 'minio_init: bucket ready'
+      "
+    restart: "no"
+
+volumes:
+  minio_data:
