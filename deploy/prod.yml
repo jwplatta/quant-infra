@@ -1,6 +1,10 @@
 name: quant-infra-prod
 
 services:
+  options_monitor:
+    ports:
+      - "8503:8501"
+
   stock_options:
     build:
       context: https://github.com/jwplatta/tickrake.git#main
