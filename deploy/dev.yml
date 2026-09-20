@@ -1,0 +1,47 @@
+name: quant-infra-dev
+
+services:
+  futures_candles:
+    build:
+      context: ~/repos/tickrake
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/dev/futures_candles.rb
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake-dev:/root/.tickrake-dev
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  reconciler:
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/dev/reconciler.rb
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake-dev:/root/.tickrake-dev
+      - ~/.aws:/root/.aws:ro
+
+  postgres:
+    ports:
+      - "5433:5432"
+
+  mlflow:
+    ports:
+      - "5001:5000"
+
+  grafana:
+    ports:
+      - "3001:3000"
+
+  minio:
+    ports:
+      - "9002:9000"
+      - "9003:9001"
+
+  promtail:
+    volumes:
+      - ./services/monitoring/promtail/promtail-dev.yml:/etc/promtail/promtail.yml:ro
+      - ~/.tickrake-dev/logs:/var/log/tickrake:ro
+      - promtail_positions:/positions
+
+volumes:
+  promtail_positions:

@@ -1,0 +1,108 @@
+name: quant-infra-prod
+
+services:
+  stock_options:
+    build:
+      context: https://github.com/jwplatta/tickrake.git#main
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  equity_level_one:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  equity_order_book:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  etf_options:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  spx_0dte_options:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  spx_short_dated_options:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  spx_longer_dated_options:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  futures_candles:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  events_ingestor:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.aws:/root/.aws:ro
+
+  metadata_sync:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+
+  intraday_publisher:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+
+  reconciler:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.aws:/root/.aws:ro
+
+  promtail:
+    volumes:
+      - ./services/monitoring/promtail/promtail-prod.yml:/etc/promtail/promtail.yml:ro
+      - ~/.tickrake/logs:/var/log/tickrake:ro
+      - promtail_positions:/positions
+
+  grafana:
+    ports:
+      - "3000:3000"
+
+  postgres:
+    ports:
+      - "5432:5432"
+
+  mlflow:
+    ports:
+      - "5000:5000"
+
+  minio:
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+volumes:
+  promtail_positions:
