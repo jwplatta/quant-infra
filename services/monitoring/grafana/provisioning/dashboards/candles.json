@@ -1,0 +1,176 @@
+{
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "Successful Fetches by Job (5m buckets)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (job_name_from_file) (count_over_time({job_name_from_file=~\"$job\"} | json | event=\"fetch_success\" [5m]))",
+          "legendFormat": "{{job_name_from_file}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } },
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Errors by Job (5m buckets)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (job_name_from_file) (count_over_time({job_name_from_file=~\"$job\"} | json | level=\"ERROR\" [5m]))",
+          "legendFormat": "{{job_name_from_file}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 20 },
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Candles Collected by Symbol (5m buckets)",
+      "description": "row_count per symbol from fetch_success events",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\"$job\"} | json | event=\"fetch_success\" | unwrap row_count [5m]))",
+          "legendFormat": "{{symbol}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } },
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Fetch Duration (ms) by Job",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "avg_over_time({job_name_from_file=~\"$job\"} | json | event=\"fetch_success\" | unwrap duration_ms [5m])",
+          "legendFormat": "{{job_name_from_file}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 10 },
+          "unit": "ms",
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Scrape Iterations (success vs failure)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (job_name_from_file) (sum_over_time({job_name_from_file=~\"$job\"} | json | event=\"scrape_end\" | unwrap success_count [5m]))",
+          "legendFormat": "{{job_name_from_file}} success",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (job_name_from_file) (sum_over_time({job_name_from_file=~\"$job\"} | json | event=\"scrape_end\" | unwrap failure_count [5m]))",
+          "legendFormat": "{{job_name_from_file}} failures",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 10 },
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Recent Errors",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 24 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "{job_name_from_file=~\"$job\"} | json | level=\"ERROR\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "title": "Live Logs",
+      "type": "logs",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 34 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "{job_name_from_file=~\"$job\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["tickrake", "candles"],
+  "templating": {
+    "list": [
+      {
+        "name": "job",
+        "label": "Job",
+        "type": "query",
+        "datasource": { "type": "loki" },
+        "query": "label_values({job_name_from_file=~\".*candle.*|.*futures_candle.*\"}, job_name_from_file)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "Candles",
+  "uid": "tickrake-candles",
+  "version": 1
+}
