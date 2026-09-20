@@ -1,0 +1,85 @@
+x-tickrake: &tickrake-base
+  image: tickrake:latest
+  env_file:
+    - envs/secrets.env
+    - envs/${ENV}.env
+  volumes:
+    - ./services/tickrake/jobs:/jobs:ro
+    - ~/.schwab_rb:/root/.schwab_rb
+    - ~/.aws:/root/.aws:ro
+  restart: unless-stopped
+
+services:
+  stock_options:
+    <<: *tickrake-base
+    profiles: [prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/stock_options.rb
+
+  equity_level_one:
+    <<: *tickrake-base
+    profiles: [prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/equity_level_one.rb
+
+  equity_order_book:
+    <<: *tickrake-base
+    profiles: [prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/equity_order_book.rb
+
+  etf_options:
+    <<: *tickrake-base
+    profiles: [prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/etf_options.rb
+
+  spx_0dte_options:
+    <<: *tickrake-base
+    profiles: [prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/spx_0dte_options.rb
+
+  spx_short_dated_options:
+    <<: *tickrake-base
+    profiles: [prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/spx_short_dated_options.rb
+
+  spx_longer_dated_options:
+    <<: *tickrake-base
+    profiles: [prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/spx_longer_dated_options.rb
+
+  futures_candles:
+    <<: *tickrake-base
+    profiles: [dev, prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/futures_candles.rb
+
+  events_ingestor:
+    <<: *tickrake-base
+    profiles: [prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/events_ingestor.rb
+
+  metadata_sync:
+    <<: *tickrake-base
+    profiles: [prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/metadata_sync.rb
+
+  intraday_publisher:
+    <<: *tickrake-base
+    profiles: [prod]
+    depends_on:
+      - minio
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/intraday_publisher.rb
+
+  reconciler:
+    <<: *tickrake-base
+    profiles: [dev, prod]
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/prod/reconciler.rb
