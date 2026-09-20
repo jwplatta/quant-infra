@@ -1,5 +1,6 @@
 COMPOSE_BASE = -f services/postgres/compose.yml \
                -f services/tickrake/compose.yml \
+               -f services/options-monitor/compose.yml \
                -f services/mlflow/compose.yml \
                -f services/monitoring/compose.yml \
                -f services/minio/compose.yml

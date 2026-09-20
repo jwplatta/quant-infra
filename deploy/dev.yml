@@ -1,6 +1,13 @@
 name: quant-infra-dev
 
 services:
+  options_monitor:
+    ports:
+      - "8504:8501"
+    volumes:
+      - ~/.tickrake-dev:/tickrake:ro
+      - ~/.aws:/root/.aws:ro
+
   futures_candles:
     build:
       context: ~/repos/tickrake
