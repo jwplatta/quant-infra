@@ -1,0 +1,311 @@
+timezone: America/Chicago
+sqlite_path: ~/.tickrake/tickrake.sqlite3
+
+default_provider: ibkr-paper
+providers:
+  tickrake:
+    adapter: ibkr
+    settings:
+      host: 127.0.0.1
+      port: 4002
+      client_id: 1001
+      historical_timeout_seconds: 120
+  massive:
+    adapter: massive
+    settings: {}
+  schwab:
+    adapter: schwab
+    settings:
+      restart_after_consecutive_failures: 3
+      restart_cooldown_seconds: 10
+      # rate_limit_max_requests: 120
+      # rate_limit_interval_seconds: 60
+    symbol_map:
+      /ES: ^ES
+      /NQ: ^NQ
+      /RTY: ^RTY
+      /YM: ^YM
+      /CL: ^CL
+      /GC: ^GC
+      /ZB: ^ZB
+  ibkr-paper:
+    adapter: ibkr
+    settings:
+      host: 127.0.0.1
+      port: 4002
+      client_id: 1001
+      historical_timeout_seconds: 120
+  ibkr-live:
+    adapter: ibkr
+    settings:
+      host: 127.0.0.1
+      port: 4001
+      client_id: 1000
+      historical_timeout_seconds: 120
+
+options:
+  snapshot_filename_timezone: utc
+  root_tickers:
+    SPXW: SPX
+
+datastores:
+  s3_archive:
+    type: s3
+    bucket: tickrake
+    region: us-east-1
+    storage_class: GLACIER_IR
+  minio_intraday:
+    type: s3_compatible
+    endpoint: http://minio:9000
+    bucket: tickrake-intraday
+    region: us-east-1
+    access_key_id: minioadmin
+    secret_access_key: minioadmin
+    force_path_style: true
+storage:
+  data_dir: ~/.tickrake/data
+
+runtime:
+  max_workers: 4
+  retry_count: 3
+  retry_delay_seconds: 5
+  option_fetch_timeout_seconds: 60
+  candle_fetch_timeout_seconds: 1800
+
+universes:
+  file: universes.yml
+
+schedule:
+  futures_candles:
+    type: candles
+    provider: schwab
+    run_at: "16:30"
+    days: [mon, tue, wed, thu, fri]
+    lookback_days: 90
+    frequencies: [day, 30min, 5min, 1min]
+    universe:
+      - symbol: /ES
+        start_date: "2026-06-01"
+      - symbol: /NQ
+        start_date: "2026-06-01"
+      - symbol: /RTY
+        start_date: "2026-06-01"
+      - symbol: /YM
+        start_date: "2026-06-01"
+
+  compact_spxw:
+    type: maintenance
+    provider: schwab
+    run_at: "15:30"
+    days: [mon, tue, wed, thu, fri]
+    tasks:
+      - compact:
+          subject: option_samples
+          universe: spx_symbols
+          delete_sources: true
+      - archive:
+          subject: option_samples
+          universe: spx_symbols
+          destination: s3_archive
+          artifacts: [csv, parquet]
+          retain_local:
+            csv: false
+            parquet: true
+
+  compact_non_spxw_option_samples:
+    type: maintenance
+    provider: schwab
+    run_at: "15:40"
+    days: [mon, tue, wed, thu, fri]
+    tasks:
+      - compact:
+          subject: option_samples
+          universes: [stock_option_symbols, etf_option_symbols]
+          delete_sources: true
+      - archive:
+          subject: option_samples
+          universes: [stock_option_symbols, etf_option_symbols]
+          destination: s3_archive
+          artifacts: [csv, parquet]
+          retain_local:
+            csv: false
+            parquet: true
+
+  stock_options:
+    provider: schwab
+    type: options
+    interval_seconds: 1800
+    windows:
+      - days: [mon, tue, wed, thu, fri]
+        start: "08:30"
+        end: "15:05"
+    dte_buckets:
+      - 0DTE
+      - 1DTE
+      - 2DTE
+      - 3DTE
+      - 4DTE
+      - 5DTE
+      - 6DTE
+      - 7DTE
+      - 8DTE
+      - 9DTE
+      - 10DTE
+      - 11DTE
+      - 12DTE
+      - 13DTE
+      - 14DTE
+      - 15DTE
+      - 16DTE
+      - 17DTE
+      - 18DTE
+      - 19DTE
+      - 20DTE
+      - 21DTE
+      - 22DTE
+      - 23DTE
+      - 24DTE
+      - 25DTE
+      - 26DTE
+      - 27DTE
+      - 28DTE
+      - 29DTE
+      - 30DTE
+    universe: stock_option_symbols
+
+  etf_options:
+    provider: schwab
+    type: options
+    interval_seconds: 600 #every 10 min
+    windows:
+      - days: [mon, tue, wed, thu, fri]
+        start: "08:30"
+        end: "15:05"
+    dte_buckets:
+      - 0DTE
+      - 1DTE
+      - 2DTE
+      - 3DTE
+      - 4DTE
+      - 5DTE
+      - 6DTE
+      - 7DTE
+      - 8DTE
+      - 9DTE
+      - 10DTE
+      - 11DTE
+      - 12DTE
+      - 13DTE
+      - 14DTE
+      - 15DTE
+      - 16DTE
+      - 17DTE
+      - 18DTE
+      - 19DTE
+      - 20DTE
+      - 21DTE
+      - 22DTE
+      - 23DTE
+      - 24DTE
+      - 25DTE
+      - 26DTE
+      - 27DTE
+      - 28DTE
+      - 29DTE
+      - 30DTE
+    universe: etf_option_symbols
+
+  spx_0dte_options:
+    provider: schwab
+    type: options
+    interval_seconds: 5
+    windows:
+      - days: [mon, tue, wed, thu, fri]
+        start: "08:30"
+        end: "15:00"
+    dte_buckets:
+      - 0DTE
+    universe: spx_symbols
+
+  spx_short_dated_options:
+    provider: schwab
+    type: options
+    interval_seconds: 60
+    windows:
+      - days: [mon, tue, wed, thu, fri]
+        start: "08:30"
+        end: "15:05"
+    dte_buckets:
+      - 1DTE
+      - 2DTE
+      - 3DTE
+      - 4DTE
+      - 5DTE
+      - 6DTE
+      - 7DTE
+      - 8DTE
+      - 9DTE
+      - 10DTE
+    universe: spx_symbols
+
+  spx_longer_dated_options:
+    provider: schwab
+    type: options
+    interval_seconds: 300
+    windows:
+      - days: [mon, tue, wed, thu, fri]
+        start: "08:30"
+        end: "15:05"
+    dte_buckets:
+      - 11DTE
+      - 12DTE
+      - 13DTE
+      - 14DTE
+      - 14DTE
+      - 15DTE
+      - 16DTE
+      - 17DTE
+      - 18DTE
+      - 19DTE
+      - 20DTE
+      - 21DTE
+      - 22DTE
+      - 23DTE
+      - 24DTE
+      - 25DTE
+      - 26DTE
+      - 27DTE
+      - 28DTE
+      - 29DTE
+      - 30DTE
+      - 31DTE
+      - 32DTE
+      - 33DTE
+      - 34DTE
+      - 35DTE
+      - 36DTE
+      - 37DTE
+      - 38DTE
+      - 39DTE
+      - 40DTE
+      - 41DTE
+      - 42DTE
+      - 43DTE
+      - 44DTE
+      - 45DTE
+      - 46DTE
+      - 47DTE
+      - 48DTE
+      - 49DTE
+      - 50DTE
+      - 51DTE
+      - 52DTE
+      - 53DTE
+      - 54DTE
+      - 55DTE
+      - 56DTE
+      - 57DTE
+      - 58DTE
+      - 59DTE
+      - 60DTE
+    universe: spx_symbols

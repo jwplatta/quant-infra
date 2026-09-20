@@ -1,0 +1,64 @@
+universes:
+  spx_symbols:
+    - symbol: $SPX
+      option_roots: [SPXW]
+
+  stock_option_symbols:
+    file: universes/stock_option_symbols.yml
+  etf_option_symbols:
+    file: universes/etf_option_symbols.yml
+  eod_candle_symbols:
+    - symbol: $SPX
+    - symbol: XSP
+    - symbol: SPY
+    - symbol: XLB
+    - symbol: XLK
+    - symbol: XLF
+    - symbol: XLE
+    - symbol: XLI
+    - symbol: XLY
+    - symbol: XLP
+    - symbol: XLRE
+    - symbol: XLU
+    - symbol: XLV
+    - symbol: RSP
+    - symbol: QQQ
+    - symbol: IWM
+    - symbol: DIA
+    - symbol: TLT
+    - symbol: $VIX
+    - symbol: $VIX9D
+    - symbol: $VIX1D
+    - symbol: $NDX
+    - symbol: $RUT
+
+  futures_candle_symbols:
+    - symbol: /ES
+      start_date: "2020-01-01"
+    - symbol: /NQ
+      start_date: "2020-01-01"
+    - symbol: /RTY
+      start_date: "2020-01-01"
+    - symbol: /YM
+      start_date: "2020-01-01"
+
+  dashboard_candle_symbols:
+    - symbol: $SPX
+      start_date: "2026-01-01"
+    - symbol: SPY
+      start_date: "2026-01-01"
+    - symbol: QQQ
+      start_date: "2026-01-01"
+    - symbol: $VIX
+      start_date: "2026-01-01"
+    - symbol: $VIX9D
+      start_date: "2026-01-01"
+    - symbol: $VIX1D
+      start_date: "2026-01-01"
+
+  dashboard_schwab_symbols:
+    - symbol: $VXN
+      start_date: "2010-01-01"
+
+  sp500_day_symbols:
+    file: universes/sp500.yml

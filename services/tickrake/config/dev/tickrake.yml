@@ -1,0 +1,75 @@
+timezone: America/Chicago
+sqlite_path: ~/.tickrake-dev/tickrake-dev.sqlite3
+
+default_provider: ibkr-paper
+providers:
+  tickrake:
+    adapter: ibkr
+    settings:
+      host: 127.0.0.1
+      port: 4002
+      client_id: 1001
+      historical_timeout_seconds: 120
+  massive:
+    adapter: massive
+    settings: {}
+  schwab:
+    adapter: schwab
+    settings:
+      restart_after_consecutive_failures: 3
+      restart_cooldown_seconds: 10
+    symbol_map:
+      /ES: ^ES
+      /NQ: ^NQ
+      /RTY: ^RTY
+      /YM: ^YM
+      /CL: ^CL
+      /GC: ^GC
+      /ZB: ^ZB
+  ibkr-paper:
+    adapter: ibkr
+    settings:
+      host: 127.0.0.1
+      port: 4002
+      client_id: 1001
+      historical_timeout_seconds: 120
+  ibkr-live:
+    adapter: ibkr
+    settings:
+      host: 127.0.0.1
+      port: 4001
+      client_id: 1000
+      historical_timeout_seconds: 120
+
+options:
+  snapshot_filename_timezone: utc
+  root_tickers:
+    SPXW: SPX
+
+datastores:
+  minio_intraday:
+    type: s3_compatible
+    endpoint: http://minio:9000
+    bucket: tickrake-intraday
+    region: us-east-1
+    access_key_id: minioadmin
+    secret_access_key: minioadmin
+    force_path_style: true
+  s3_archive:
+    type: s3
+    bucket: tickrake-dev
+    region: us-east-1
+    storage_class: GLACIER_IR
+
+storage:
+  data_dir: ~/.tickrake-dev/data
+
+runtime:
+  max_workers: 4
+  retry_count: 3
+  retry_delay_seconds: 5
+  option_fetch_timeout_seconds: 60
+  candle_fetch_timeout_seconds: 1800
+
+universes:
+  file: universes.yml

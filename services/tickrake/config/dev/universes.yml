@@ -1,0 +1,4 @@
+universes:
+  spx_symbols:
+    - symbol: $SPX
+      option_roots: [SPXW]
