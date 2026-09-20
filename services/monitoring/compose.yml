@@ -1,7 +1,7 @@
 services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
-    profiles: [dev, prod]
+    profiles: [dev, prod, data-ingestion]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/sys:ro
@@ -10,7 +10,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.53.0
-    profiles: [dev, prod]
+    profiles: [dev, prod, data-ingestion]
     volumes:
       - ./services/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -20,7 +20,7 @@ services:
 
   loki:
     image: grafana/loki:3.1.0
-    profiles: [dev, prod]
+    profiles: [dev, prod, data-ingestion]
     command: -config.file=/etc/loki/loki-config.yml
     volumes:
       - ./services/monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
@@ -29,7 +29,7 @@ services:
 
   promtail:
     image: grafana/promtail:3.1.0
-    profiles: [dev, prod]
+    profiles: [dev, prod, data-ingestion]
     command: -config.file=/etc/promtail/promtail.yml
     depends_on:
       - loki

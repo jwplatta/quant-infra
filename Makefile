@@ -8,10 +8,12 @@ COMPOSE_BASE = -f services/postgres/compose.yml \
 PROD = ENV=prod COMPOSE_PROFILES=prod docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
 DEV  = ENV=dev COMPOSE_PROFILES=dev docker compose --project-directory . $(COMPOSE_BASE) -f deploy/dev.yml
 RESEARCH = ENV=prod COMPOSE_PROFILES=research docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
+DATA_INGESTION = ENV=prod COMPOSE_PROFILES=data-ingestion docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
 
 .PHONY: prod-build prod-build-no-cache prod-up prod-down prod-logs prod-ps prod-restart prod-run
 .PHONY: dev-build dev-build-no-cache dev-up dev-down dev-logs dev-ps dev-restart dev-run
 .PHONY: research-up research-down research-logs research-ps research-restart
+.PHONY: data-ingestion-up data-ingestion-down data-ingestion-logs data-ingestion-ps data-ingestion-restart
 
 prod-build:
 	$(PROD) build
@@ -52,6 +54,21 @@ research-ps:
 
 research-restart:
 	$(RESEARCH) restart
+
+data-ingestion-up:
+	$(DATA_INGESTION) up -d
+
+data-ingestion-down:
+	$(DATA_INGESTION) down
+
+data-ingestion-logs:
+	$(DATA_INGESTION) logs -f
+
+data-ingestion-ps:
+	$(DATA_INGESTION) ps
+
+data-ingestion-restart:
+	$(DATA_INGESTION) restart
 
 dev-build:
 	$(DEV) build
