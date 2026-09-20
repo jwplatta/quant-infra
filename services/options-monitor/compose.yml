@@ -1,7 +1,7 @@
 services:
   options_monitor:
     build:
-      context: https://github.com/jwplatta/options_monitor.git#main
+      context: https://github.com/jwplatta/options-monitor.git#main
     profiles: [dev, prod]
     env_file:
       - envs/${ENV}.env
@@ -12,8 +12,6 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       S3_BUCKET: tickrake
-    ports:
-      - "8503:8501"
     volumes:
       - ~/.tickrake:/tickrake:ro
       - ~/.aws:/root/.aws:ro
