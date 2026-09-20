@@ -1,5 +1,11 @@
-PROD = docker compose -f compose/docker-compose.prod.yml
-DEV  = docker compose -f compose/docker-compose.dev.yml
+COMPOSE_BASE = -f services/postgres/compose.yml \
+               -f services/tickrake/compose.yml \
+               -f services/mlflow/compose.yml \
+               -f services/monitoring/compose.yml \
+               -f services/minio/compose.yml
+
+PROD = ENV=prod COMPOSE_PROFILES=prod docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
+DEV  = ENV=dev COMPOSE_PROFILES=dev docker compose --project-directory . $(COMPOSE_BASE) -f deploy/dev.yml
 
 .PHONY: prod-build prod-build-no-cache prod-up prod-down prod-logs prod-ps prod-restart prod-run
 .PHONY: dev-build dev-build-no-cache dev-up dev-down dev-logs dev-ps dev-restart dev-run
@@ -50,6 +56,6 @@ dev-ps:
 dev-restart:
 	$(DEV) restart
 
-# e.g. make dev-run JOB=spx_short_options
+# e.g. make dev-run JOB=futures_candles
 dev-run:
 	$(DEV) up $(JOB)
