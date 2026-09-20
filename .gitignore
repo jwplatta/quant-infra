@@ -1,4 +1,4 @@
-env/secrets.env
-env/prod.env
-env/dev.env
+envs/secrets.env
+envs/prod.env
+envs/dev.env
 /tmp
