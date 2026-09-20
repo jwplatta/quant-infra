@@ -1,0 +1,130 @@
+{
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "Streaming Events Collected per Rotation",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (job_name_from_file) (sum_over_time({job_name_from_file=~\"$job\"} | json | event=\"file_rotated\" | unwrap event_count [5m]))",
+          "legendFormat": "{{job_name_from_file}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } },
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Events Ingested to Parquet by Symbol",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\"$job\"} | json | event=\"parquet_written\" | unwrap event_count [5m]))",
+          "legendFormat": "{{symbol}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } },
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Session Lifecycle",
+      "description": "session_start, session_stop, session_error events",
+      "type": "logs",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "{job_name_from_file=~\"$job\"} | json | event=~\"session_start|session_stop|session_error|runner_start|runner_stop\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "title": "Errors",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (job_name_from_file) (count_over_time({job_name_from_file=~\"$job\"} | json | level=\"ERROR\" [5m]))",
+          "legendFormat": "{{job_name_from_file}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 20 },
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Live Logs",
+      "type": "logs",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 24 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "{job_name_from_file=~\"$job\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["tickrake", "streaming"],
+  "templating": {
+    "list": [
+      {
+        "name": "job",
+        "label": "Job",
+        "type": "query",
+        "datasource": { "type": "loki" },
+        "query": "label_values({job_name_from_file=~\"es_futures.*|events_ingestor.*\"}, job_name_from_file)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "title": "Streaming / Level One",
+  "uid": "tickrake-streaming",
+  "version": 1
+}

@@ -1,0 +1,232 @@
+{
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "Option Samples (24h)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum(sum_over_time({job_name_from_file=~\".*spx.*|.*option.*|.*etf.*|.*stock.*\"} | json | event=\"fetch_success\" | unwrap row_count [24h]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 10000 },
+              { "color": "green", "value": 100000 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Candles (24h)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum(sum_over_time({job_name_from_file=~\".*candle.*|.*futures_candle.*\"} | json | event=\"fetch_success\" | unwrap row_count [24h]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 1000 },
+              { "color": "green", "value": 10000 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Level One Events (24h)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum(sum_over_time({job_name_from_file=~\"events_ingestor.*\"} | json | event=\"parquet_written\" | unwrap event_count [24h]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 1000 },
+              { "color": "green", "value": 10000 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Total Fetches (24h)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 3, "x": 18, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum(count_over_time({job_name_from_file=~\".+\"} | json | event=\"fetch_success\" [24h]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Failed Fetches (24h)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 3, "x": 21, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum(count_over_time({job_name_from_file=~\".+\"} | json | event=\"fetch_failed\" [24h]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 10 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Option Samples by Symbol (24h)",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\".*spx.*|.*option.*|.*etf.*|.*stock.*\"} | json | event=\"fetch_success\" | unwrap row_count [24h]))",
+          "legendFormat": "{{symbol}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" }
+        }
+      }
+    },
+    {
+      "title": "Candles by Symbol (24h)",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 6 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\".*candle.*|.*futures_candle.*\"} | json | event=\"fetch_success\" | unwrap row_count [24h]))",
+          "legendFormat": "{{symbol}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" }
+        }
+      }
+    },
+    {
+      "title": "Level One Events by Symbol (24h)",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\"events_ingestor.*\"} | json | event=\"parquet_written\" | unwrap event_count [24h]))",
+          "legendFormat": "{{symbol}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" }
+        }
+      }
+    },
+    {
+      "title": "Errors (24h)",
+      "type": "logs",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 14 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "{job_name_from_file=~\".+\"} | json | level=\"ERROR\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": ["tickrake", "overview"],
+  "templating": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" },
+  "timezone": "browser",
+  "title": "Collection Stats",
+  "uid": "tickrake-collection-stats",
+  "version": 1
+}

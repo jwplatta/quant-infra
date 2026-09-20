@@ -1,0 +1,35 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /positions/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: tickrake
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          env: prod
+          __path__: /var/log/tickrake/*.jsonl
+    pipeline_stages:
+      - regex:
+          source: filename
+          expression: '/var/log/tickrake/(?P<job_name_from_file>[^/]+)\.jsonl$'
+      - labels:
+          job_name_from_file:
+      - json:
+          expressions:
+            level: level
+            job_name: job_name
+            job_type: job_type
+            provider: provider
+      - labels:
+          level:
+          job_name:
+          job_type:
+          provider:

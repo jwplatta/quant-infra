@@ -1,0 +1,28 @@
+services:
+  minio:
+    image: minio/minio:latest
+    profiles: [dev, prod]
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  minio_init:
+    image: minio/mc:latest
+    profiles: [dev, prod]
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+        sleep 3 &&
+        mc alias set local http://minio:9000 minioadmin minioadmin &&
+        mc mb --ignore-existing local/tickrake-intraday &&
+        echo 'minio_init: bucket ready'
+      "
+    restart: "no"
+
+volumes:
+  minio_data:
