@@ -158,6 +158,6 @@ deploy/dev.yml                     # dev overrides (ports, volumes, build contex
 deploy/prod.yml                    # prod overrides
 ```
 
-Each service compose file defines base config. The deploy overlays add environment-specific ports, volumes, and build contexts. Profiles (`[dev]`, `[prod]`, `[dev, prod]`) control which services start per environment.
+Each service compose file defines base config. The deploy overlays add environment-specific ports, volumes, and build contexts. Profiles (`[dev]`, `[research]`, `[prod]`, `[dev, prod, research]`) control which services start per environment. `make research-up` starts only Postgres and MLflow; `make prod-up` starts the complete production stack.
 
-The Makefile wires it all together so you only need `make dev-up` / `make prod-up`.
+The Makefile wires it all together so you only need `make dev-up`, `make research-up`, or `make prod-up`.
