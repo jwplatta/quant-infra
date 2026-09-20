@@ -19,6 +19,7 @@ Research repositories consume the published data and use MLflow; they do not liv
 | --- | --- | --- |
 | Dev | `make dev-up` | The dev infrastructure plus `futures_candles` and `reconciler`, using local Tickrake source and isolated dev state. |
 | Research | `make research-up` | Only PostgreSQL and MLflow. Use this for experiment tracking without data collection or monitoring. |
+| Data ingestion | `make data-ingestion-up` | Production Tickrake jobs, MinIO, and collection observability; excludes PostgreSQL, MLflow, Grafana, and Options Monitor. |
 | Production | `make prod-up` | The complete stack: infrastructure, observability, and all production Tickrake jobs. |
 
 `research` uses the production project, volumes, and ports (Postgres `5432`, MLflow `5000`). Stop the active profile before switching modes: `make research-down` or `make prod-down`.
@@ -55,13 +56,13 @@ make prod-build && make prod-up
 
 ## Common commands
 
-| Purpose | Dev | Research | Production |
-| --- | --- | --- | --- |
-| Start | `make dev-up` | `make research-up` | `make prod-up` |
-| Stop | `make dev-down` | `make research-down` | `make prod-down` |
-| Status | `make dev-ps` | `make research-ps` | `make prod-ps` |
-| Logs | `make dev-logs` | `make research-logs` | `make prod-logs` |
-| Restart | `make dev-restart` | `make research-restart` | `make prod-restart` |
+| Purpose | Dev | Research | Data ingestion | Production |
+| --- | --- | --- | --- | --- |
+| Start | `make dev-up` | `make research-up` | `make data-ingestion-up` | `make prod-up` |
+| Stop | `make dev-down` | `make research-down` | `make data-ingestion-down` | `make prod-down` |
+| Status | `make dev-ps` | `make research-ps` | `make data-ingestion-ps` | `make prod-ps` |
+| Logs | `make dev-logs` | `make research-logs` | `make data-ingestion-logs` | `make prod-logs` |
+| Restart | `make dev-restart` | `make research-restart` | `make data-ingestion-restart` | `make prod-restart` |
 
 Build commands are available for the dev and production profiles: `make dev-build`, `make prod-build`, and their `-no-cache` variants. Start one Tickrake service explicitly with `make dev-run JOB=futures_candles` or `make prod-run JOB=spx_0dte_options`.
 
@@ -69,7 +70,7 @@ Build commands are available for the dev and production profiles: `make dev-buil
 
 ```text
 services/
-  tickrake/       Tickrake image configuration and dev/prod job definitions
+  tickrake/       Tickrake image configuration, versioned dev/prod config and universes, and job definitions
   postgres/       PostgreSQL service and database initialization
   mlflow/         MLflow image and server configuration
   minio/          Local S3-compatible storage
@@ -102,7 +103,7 @@ Grafana and MinIO are not part of the research profile.
 
 Options Monitor is the user-facing intraday trading dashboard. It is enabled in both dev and production, starts with the rest of those profiles, and depends on MinIO. It reads the `tickrake-intraday` bucket from MinIO and has read-only access to the matching Tickrake home and AWS credentials.
 
-Both profiles build from `https://github.com/jwplatta/options_monitor.git#main`. Dev is available on port `8504`; production is available on port `8503`. The dashboard should rely on its published-data interfaces rather than assume Tickrake's on-disk storage layout is a permanent contract.
+Both profiles build from `https://github.com/jwplatta/options-monitor.git#main`. Dev is available on port `8504`; production is available on port `8503`. The dashboard should rely on its published-data interfaces rather than assume Tickrake's on-disk storage layout is a permanent contract.
 
 ## Tickrake jobs
 
@@ -112,6 +113,6 @@ To add a job to dev, place its dev definition under `services/tickrake/jobs/dev/
 
 ## Data and operational boundaries
 
-Tickrake publishes durable market-data outputs; this repository supplies its runtime dependencies and observability. MLflow records research metadata and artifacts. Keep credentials in the ignored `envs/*.env` files and user-level credential directories, never in Compose files or committed configuration.
+Tickrake publishes durable market-data outputs; this repository supplies its runtime dependencies and observability. MLflow records research metadata and artifacts. The Tickrake settings and universes are versioned in `services/tickrake/config/prod/` and `services/tickrake/config/dev/`, then mounted read-only at `/config/tickrake.yml` for each job. Keep credentials in the ignored `envs/*.env` files and user-level credential directories, never in Compose files or committed configuration.
 
 For environment details, database access, and the full Compose composition, see [docs/SETUP.md](docs/SETUP.md). The system relationships are shown in [docs/architecture-diagram.md](docs/architecture-diagram.md).
