@@ -3,16 +3,16 @@
 
 require "tickrake"
 
-Tickrake.job "spx_short_dated_options" do
+Tickrake.job "spx_longer_dated_options" do
   provider :schwab
   universe "spx_symbols"
 
   schedule do
-    every 60.seconds
-    weekdays from: "08:30", to: "15:05"
+    every 5.minutes
+    weekdays from: "08:32", to: "15:05"
   end
 
   options do
-    dte(1..10)
+    dte(11..60)
   end
 end

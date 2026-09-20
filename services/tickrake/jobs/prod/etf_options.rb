@@ -3,13 +3,13 @@
 
 require "tickrake"
 
-Tickrake.job "stock_options" do
+Tickrake.job "etf_options" do
   provider :schwab
-  universe "stock_option_symbols"
+  universe "etf_option_symbols"
 
   schedule do
-    every 30.minutes
-    weekdays from: "08:30", to: "15:05"
+    every 10.minutes
+    weekdays from: "08:40", to: "15:00"
   end
 
   options do
