@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17
+    profiles: [dev, prod]
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./services/postgres/init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
