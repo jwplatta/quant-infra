@@ -93,6 +93,13 @@ services:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/intraday_publisher.rb
 
+  economic_events:
+    <<: *tickrake-base
+    profiles: [dev, prod, data-ingestion]
+    environment:
+      <<: *tickrake-environment
+      TICKRAKE_JOB_FILE: /jobs/prod/economic_events.rb
+
   reconciler:
     <<: *tickrake-base
     profiles: [dev, prod, data-ingestion]

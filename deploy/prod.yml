@@ -79,6 +79,12 @@ services:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
 
+  economic_events:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.aws:/root/.aws:ro
+
   reconciler:
     volumes:
       - ./services/tickrake/jobs:/jobs:ro

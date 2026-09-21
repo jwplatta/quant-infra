@@ -27,6 +27,15 @@ services:
       - ~/.tickrake-dev:/root/.tickrake-dev
       - ~/.aws:/root/.aws:ro
 
+  economic_events:
+    environment:
+      TICKRAKE_JOB_FILE: /jobs/dev/economic_events.rb
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake-dev:/root/.tickrake-dev
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
   postgres:
     ports:
       - "5433:5432"
