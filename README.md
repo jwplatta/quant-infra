@@ -66,6 +66,17 @@ make prod-build && make prod-up
 
 Build commands are available for the dev and production profiles: `make dev-build`, `make prod-build`, and their `-no-cache` variants. Start one Tickrake service explicitly with `make dev-run JOB=futures_candles` or `make prod-run JOB=spx_0dte_options`.
 
+## Secret scanning
+
+Install the repository hooks once after installing [Gitleaks](https://github.com/gitleaks/gitleaks):
+
+```sh
+brew install gitleaks
+make hooks-install
+```
+
+The pre-commit hook scans staged changes. The pre-push hook scans Git history, blocking a push if it finds a secret. Run `make secrets-check` at any time for the same full scan.
+
 ## Layout
 
 ```text
@@ -107,7 +118,7 @@ Both profiles build from `https://github.com/jwplatta/options-monitor.git#main`.
 
 ## Tickrake jobs
 
-The production profile runs the stock, ETF, SPX options, equity Level 1/order-book, futures candles, ingestion, metadata, publishing, and reconciliation jobs. The dev profile intentionally limits this to `futures_candles` and `reconciler`.
+The production profile runs the stock, ETF, SPX options, equity Level 1/order-book, futures candles, economic-events, ingestion, metadata, publishing, and reconciliation jobs. The dev profile intentionally limits this to `futures_candles`, `economic_events`, and `reconciler`.
 
 To add a job to dev, place its dev definition under `services/tickrake/jobs/dev/`, add `dev` to its service profile in `services/tickrake/compose.yml`, and override its file path and mounts in `deploy/dev.yml`. See [docs/SETUP.md](docs/SETUP.md) for the complete example.
 

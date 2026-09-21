@@ -10,10 +10,18 @@ DEV  = ENV=dev COMPOSE_PROFILES=dev docker compose --project-directory . $(COMPO
 RESEARCH = ENV=prod COMPOSE_PROFILES=research docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
 DATA_INGESTION = ENV=prod COMPOSE_PROFILES=data-ingestion docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
 
+.PHONY: hooks-install secrets-check
 .PHONY: prod-build prod-build-no-cache prod-up prod-down prod-logs prod-ps prod-restart prod-run
 .PHONY: dev-build dev-build-no-cache dev-up dev-down dev-logs dev-ps dev-restart dev-run
 .PHONY: research-up research-down research-logs research-ps research-restart
 .PHONY: data-ingestion-up data-ingestion-down data-ingestion-logs data-ingestion-ps data-ingestion-restart
+
+hooks-install:
+	@command -v gitleaks >/dev/null || { echo "Install gitleaks first: brew install gitleaks"; exit 1; }
+	git config core.hooksPath scripts/git-hooks
+
+secrets-check:
+	gitleaks git .
 
 prod-build:
 	$(PROD) build
