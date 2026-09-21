@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "gitleaks is required for this repository. Install it with: brew install gitleaks" >&2
+  exit 1
+fi
+
+repository_root=$(git rev-parse --show-toplevel)
+cd "$repository_root"
+exec gitleaks git .
