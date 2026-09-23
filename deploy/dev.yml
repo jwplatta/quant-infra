@@ -5,7 +5,7 @@ services:
     ports:
       - "8504:8501"
     volumes:
-      - ~/.tickrake-dev:/tickrake:ro
+      - ~/.tickrake-dev:/root/.tickrake-dev:ro
       - ~/.aws:/root/.aws:ro
 
   futures_candles:
