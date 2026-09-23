@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.quant-infra.docker-stats-exporter</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/jplatta/repos/quant-infra/services/docker-stats-exporter/app.py</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>DOCKER_SOCKET</key>
+    <string>/Users/jplatta/.docker/run/docker.sock</string>
+    <key>POLL_INTERVAL_SECONDS</key>
+    <string>15</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/private/tmp/quant-infra-docker-stats-exporter.log</string>
+  <key>StandardErrorPath</key>
+  <string>/private/tmp/quant-infra-docker-stats-exporter.log</string>
+</dict>
+</plist>
