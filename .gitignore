@@ -3,3 +3,4 @@ envs/prod.env
 envs/dev.env
 /tmp
 .claude
+.codex
