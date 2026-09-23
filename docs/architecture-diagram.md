@@ -15,7 +15,7 @@ flowchart TB
         tickrake["Tickrake jobs<br/>collection, economic events,<br/>publishing, reconciliation"]
         mlflowTracking["MLflow tracking server"]
         tractatus["Tractatus<br/>market-data access library"]
-        observability["Observability<br/>Promtail, Loki, cAdvisor, Prometheus"]
+        observability["Observability<br/>Docker stats exporter, Promtail, Loki, Prometheus"]
     end
 
     subgraph storage["Storage and data layer"]
