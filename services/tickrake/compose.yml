@@ -21,20 +21,6 @@ services:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/stock_options.rb
 
-  equity_level_one:
-    <<: *tickrake-base
-    profiles: [prod, data-ingestion]
-    environment:
-      <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/equity_level_one.rb
-
-  equity_order_book:
-    <<: *tickrake-base
-    profiles: [prod, data-ingestion]
-    environment:
-      <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/equity_order_book.rb
-
   etf_options:
     <<: *tickrake-base
     profiles: [prod, data-ingestion]
@@ -69,6 +55,13 @@ services:
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/futures_candles.rb
+
+  market_streams:
+    <<: *tickrake-base
+    profiles: [prod, data-ingestion]
+    environment:
+      <<: *tickrake-environment
+      TICKRAKE_JOB_FILE: /jobs/prod/market_streams.rb
 
   events_ingestor:
     <<: *tickrake-base
