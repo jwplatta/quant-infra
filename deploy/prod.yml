@@ -14,20 +14,6 @@ services:
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
 
-  equity_level_one:
-    volumes:
-      - ./services/tickrake/jobs:/jobs:ro
-      - ~/.tickrake:/root/.tickrake
-      - ~/.schwab_rb:/root/.schwab_rb
-      - ~/.aws:/root/.aws:ro
-
-  equity_order_book:
-    volumes:
-      - ./services/tickrake/jobs:/jobs:ro
-      - ~/.tickrake:/root/.tickrake
-      - ~/.schwab_rb:/root/.schwab_rb
-      - ~/.aws:/root/.aws:ro
-
   etf_options:
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
@@ -57,6 +43,13 @@ services:
       - ~/.aws:/root/.aws:ro
 
   futures_candles:
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
+  market_streams:
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
@@ -107,7 +100,7 @@ services:
 
   mlflow:
     ports:
-      - "5000:5000"
+      - "5005:5000"
 
   minio:
     ports:
