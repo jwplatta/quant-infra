@@ -1,0 +1,92 @@
+{
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "Running Support Jobs",
+      "description": "Container state for continuously scheduled support jobs. Compaction is intentionally absent because it is not currently a Compose service.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "docker_container_up{service=~\"metadata_sync|reconciler|intraday_publisher|events_ingestor\"}", "legendFormat": "{{service}}", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "valueAndName", "orientation": "horizontal" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "0": { "text": "Down", "color": "red" }, "1": { "text": "Running", "color": "green" } } }] } }
+    },
+    {
+      "title": "Compaction Structured Activity (24h)",
+      "description": "No data means the scheduled compact_all_option_samples job has not emitted a structured log. It is not currently registered as a Compose service.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(count_over_time({job_name_from_file=\"compact_all_option_samples\"} [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "noValue": "No activity", "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] } } }
+    },
+    {
+      "title": "Support Job Errors (24h)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(count_over_time({job_name_from_file=~\"metadata_sync|reconciler|intraday_publisher|events_ingestor|compact_all_option_samples\"} | json | level=\"ERROR\" [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } }
+    },
+    {
+      "title": "Raw Events Ingested to Parquet by Symbol",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum by (symbol) (sum_over_time({job_name_from_file=\"events_ingestor\"} | json | event=\"parquet_written\" | unwrap event_count [5m]))", "legendFormat": "{{symbol}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Metadata Sidecars Ingested",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(sum_over_time({job_name_from_file=\"metadata_sync\"} | json | regexp `metadata_sync: ingested (?P<sidecars>\\d+) sidecar` | unwrap sidecars [5m]))", "legendFormat": "sidecars", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars" }, "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Reconciled Root Files",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(count_over_time({job_name_from_file=\"reconciler\"} |= \"reconciler: wrote ROOT.json\" [5m]))", "legendFormat": "ROOT.json files", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars" }, "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Intraday Indexes Published",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(count_over_time({job_name_from_file=\"intraday_publisher\"} |= \"intraday_publisher: published index\" [5m]))", "legendFormat": "indexes", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars" }, "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Support Job Lifecycle and Errors",
+      "type": "logs",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 21 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "{job_name_from_file=~\"metadata_sync|reconciler|intraday_publisher|events_ingestor|compact_all_option_samples\"} | json | level=\"ERROR\"", "refId": "A" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "prettifyLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "title": "Support Job Logs",
+      "type": "logs",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 21 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "{job_name_from_file=~\"metadata_sync|reconciler|intraday_publisher|events_ingestor|compact_all_option_samples\"}", "refId": "A" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "prettifyLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["tickrake", "operations", "support-jobs"],
+  "templating": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" },
+  "timezone": "browser",
+  "title": "Data Operations",
+  "uid": "tickrake-data-operations",
+  "version": 1
+}

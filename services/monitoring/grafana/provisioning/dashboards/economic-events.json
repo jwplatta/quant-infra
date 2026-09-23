@@ -1,0 +1,90 @@
+{
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "Economic Events Container",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "docker_container_up{service=\"economic_events\"}", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "0": { "text": "Down", "color": "red" }, "1": { "text": "Running", "color": "green" } } }] } }
+    },
+    {
+      "title": "Rows Written (24h)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(sum_over_time({job_name_from_file=\"economic_events\"} | json | msg=\"economic_events_written\" | unwrap row_count [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] } } }
+    },
+    {
+      "title": "Completed Scrapes (24h)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(count_over_time({job_name_from_file=\"economic_events\"} | json | event=\"scrape_end\" [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" }
+    },
+    {
+      "title": "Errors (24h)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(count_over_time({job_name_from_file=\"economic_events\"} | json | level=\"ERROR\" [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } }
+    },
+    {
+      "title": "Rows Written by Source and Category",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum by (source, category) (sum_over_time({job_name_from_file=\"economic_events\"} | json | msg=\"economic_events_written\" | unwrap row_count [5m]))", "legendFormat": "{{source}} / {{category}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Scrape Duration",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "max_over_time({job_name_from_file=\"economic_events\"} | json | event=\"scrape_end\" | unwrap duration_ms [5m])", "legendFormat": "duration", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "drawStyle": "line", "fillOpacity": 15 } } }
+    },
+    {
+      "title": "Completed Scrapes: Rows per Collection",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "max by (collection_id) (max_over_time({job_name_from_file=\"economic_events\"} | json | event=\"scrape_end\" | unwrap row_count [5m]))", "legendFormat": "{{collection_id}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars" }, "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Economic Events Errors",
+      "type": "logs",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "{job_name_from_file=\"economic_events\"} | json | level=\"ERROR\"", "refId": "A" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "prettifyLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "title": "Economic Events Logs",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 21 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "{job_name_from_file=\"economic_events\"}", "refId": "A" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "prettifyLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["tickrake", "economic-events"],
+  "templating": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" },
+  "timezone": "browser",
+  "title": "Economic Events",
+  "uid": "tickrake-economic-events",
+  "version": 1
+}

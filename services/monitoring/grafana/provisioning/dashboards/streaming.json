@@ -3,128 +3,85 @@
   "graphTooltip": 1,
   "panels": [
     {
-      "title": "Streaming Events Collected per Rotation",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-      "datasource": { "type": "loki" },
-      "targets": [
-        {
-          "expr": "sum by (job_name_from_file) (sum_over_time({job_name_from_file=~\"$job\"} | json | event=\"file_rotated\" | unwrap event_count [5m]))",
-          "legendFormat": "{{job_name_from_file}}",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } },
-          "color": { "mode": "palette-classic" }
-        },
-        "overrides": []
-      }
+      "title": "Market Streams Container",
+      "description": "One container owns all logical market-data subscriptions.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "docker_container_up{service=\"market_streams\"}", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "0": { "text": "Down", "color": "red" }, "1": { "text": "Running", "color": "green" } } }] } }
     },
     {
-      "title": "Events Ingested to Parquet by Symbol",
+      "title": "Container CPU",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "datasource": { "type": "loki" },
-      "targets": [
-        {
-          "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\"$job\"} | json | event=\"parquet_written\" | unwrap event_count [5m]))",
-          "legendFormat": "{{symbol}}",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } },
-          "color": { "mode": "palette-classic" }
-        },
-        "overrides": []
-      }
+      "gridPos": { "h": 5, "w": 9, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "docker_container_cpu_cores{service=\"market_streams\"}", "legendFormat": "cores", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "cores", "custom": { "drawStyle": "line", "fillOpacity": 10 } } }
     },
     {
-      "title": "Session Lifecycle",
-      "description": "session_start, session_stop, session_error events",
+      "title": "Container Memory",
+      "type": "timeseries",
+      "gridPos": { "h": 5, "w": 9, "x": 15, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "docker_container_memory_usage_bytes{service=\"market_streams\"}", "legendFormat": "usage", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "drawStyle": "line", "fillOpacity": 10 } } }
+    },
+    {
+      "title": "Raw Events per Rotation by Stream",
+      "description": "Level One and order-book streams rotate raw event files every five minutes.",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum by (subscription) (sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"file_rotated\" | regexp \"\\\"file\\\":\\\"(?P<subscription>.+)_[0-9]{8}T\" | unwrap event_count [5m]))", "legendFormat": "{{subscription}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Chart Bars Flushed by Stream",
+      "description": "CHART_EQUITY and CHART_FUTURES flush independently inside the shared connection.",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum by (subscription) (sum_over_time({job_name_from_file=\"market_streams\"} | json | regexp `\\[stream:market_streams:(?P<subscription>[^\\]]+)\\] Flushed (?P<bar_count>\\d+) bar` | unwrap bar_count [5m]))", "legendFormat": "{{subscription}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Subscription and Connection Lifecycle",
+      "description": "Shows activation, removal, connection, disconnect, and watchdog recovery events for the shared session.",
       "type": "logs",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 13 },
       "datasource": { "type": "loki" },
-      "targets": [
-        {
-          "expr": "{job_name_from_file=~\"$job\"} | json | event=~\"session_start|session_stop|session_error|runner_start|runner_stop\"",
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showTime": true,
-        "showLabels": true,
-        "wrapLogMessage": true,
-        "prettifyLogMessage": true,
-        "enableLogDetails": true,
-        "sortOrder": "Descending"
-      }
+      "targets": [{ "expr": "{job_name_from_file=\"market_streams\"} | json | event=~\"subscription_add|subscription_remove|session_start|session_stop|stream_connect|stream_disconnect|stream_reconnect|stream_stale\"", "refId": "A" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "prettifyLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
     },
     {
-      "title": "Errors",
+      "title": "Stream Errors and Recovery Events",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 21 },
       "datasource": { "type": "loki" },
       "targets": [
-        {
-          "expr": "sum by (job_name_from_file) (count_over_time({job_name_from_file=~\"$job\"} | json | level=\"ERROR\" [5m]))",
-          "legendFormat": "{{job_name_from_file}}",
-          "refId": "A"
-        }
+        { "expr": "sum by (event) (count_over_time({job_name_from_file=\"market_streams\"} | json | event=~\"stream_disconnect|stream_reconnect|stream_stale|session_error\" [5m]))", "legendFormat": "{{event}}", "refId": "A" },
+        { "expr": "sum(count_over_time({job_name_from_file=\"market_streams\"} | json | level=\"ERROR\" [5m]))", "legendFormat": "errors", "refId": "B" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": { "drawStyle": "line", "fillOpacity": 20 },
-          "color": { "mode": "palette-classic" }
-        },
-        "overrides": []
-      }
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 20 }, "color": { "mode": "palette-classic" } } }
     },
     {
-      "title": "Live Logs",
+      "title": "Market Streams Logs",
       "type": "logs",
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 24 },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 21 },
       "datasource": { "type": "loki" },
-      "targets": [
-        {
-          "expr": "{job_name_from_file=~\"$job\"}",
-          "refId": "A"
-        }
-      ],
-      "options": {
-        "showTime": true,
-        "showLabels": true,
-        "wrapLogMessage": true,
-        "prettifyLogMessage": true,
-        "enableLogDetails": true,
-        "sortOrder": "Descending"
-      }
+      "targets": [{ "expr": "{job_name_from_file=\"market_streams\"}", "refId": "A" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "prettifyLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
     }
   ],
   "refresh": "30s",
   "schemaVersion": 39,
-  "tags": ["tickrake", "streaming"],
-  "templating": {
-    "list": [
-      {
-        "name": "job",
-        "label": "Job",
-        "type": "query",
-        "datasource": { "type": "loki" },
-        "query": "label_values({job_name_from_file=~\"es_futures.*|events_ingestor.*\"}, job_name_from_file)",
-        "refresh": 2,
-        "includeAll": true,
-        "multi": true,
-        "current": { "text": "All", "value": "$__all" }
-      }
-    ]
-  },
-  "time": { "from": "now-1h", "to": "now" },
+  "tags": ["tickrake", "streaming", "market-data"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
   "timezone": "browser",
-  "title": "Streaming / Level One",
+  "title": "Market Data Streams",
   "uid": "tickrake-streaming",
-  "version": 1
+  "version": 2
 }
