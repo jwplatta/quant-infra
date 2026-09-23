@@ -6,6 +6,7 @@ COMPOSE_BASE = -f services/postgres/compose.yml \
                -f services/minio/compose.yml
 
 PROD = ENV=prod COMPOSE_PROFILES=prod docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
+PROD_DOWN = ENV=prod COMPOSE_PROFILES=prod,dev docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
 DEV  = ENV=dev COMPOSE_PROFILES=dev docker compose --project-directory . $(COMPOSE_BASE) -f deploy/dev.yml
 RESEARCH = ENV=prod COMPOSE_PROFILES=research docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
 DATA_INGESTION = ENV=prod COMPOSE_PROFILES=data-ingestion docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
@@ -33,7 +34,7 @@ prod-up:
 	$(PROD) up -d
 
 prod-down:
-	$(PROD) down
+	$(PROD_DOWN) down
 
 prod-logs:
 	$(PROD) logs -f
