@@ -215,7 +215,7 @@ schedule:
       - 30DTE
     universe: etf_option_symbols
 
-  spx_0dte_options:
+  0dte_options:
     provider: schwab
     type: options
     interval_seconds: 5

@@ -1,14 +1,22 @@
 universes:
-  spx_symbols:
+  0dte_symbols:
     - symbol: $SPX
       option_roots: [SPXW]
+    - symbol: $NDX
+      option_roots: [NDXW]
+    - symbol: SPY
+    - symbol: QQQ
+    - symbol: IWM
 
   stock_option_symbols:
     file: universes/stock_option_symbols.yml
+
   etf_option_symbols:
     file: universes/etf_option_symbols.yml
+
   eod_candle_symbols:
     - symbol: $SPX
+    - symbol: $TNX
     - symbol: XSP
     - symbol: SPY
     - symbol: XLB
@@ -54,6 +62,8 @@ universes:
     - symbol: $VIX9D
       start_date: "2026-01-01"
     - symbol: $VIX1D
+      start_date: "2026-01-01"
+    - symbol: $TNX
       start_date: "2026-01-01"
 
   dashboard_schwab_symbols:

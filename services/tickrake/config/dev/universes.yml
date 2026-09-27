@@ -2,3 +2,12 @@ universes:
   spx_symbols:
     - symbol: $SPX
       option_roots: [SPXW]
+
+  0dte_symbols:
+    - symbol: $SPX
+      option_roots: [SPXW]
+    - symbol: $NDX
+      option_roots: [NDXW]
+    - symbol: SPY
+    - symbol: QQQ
+    - symbol: IWM

@@ -8,7 +8,7 @@ Docker Compose infrastructure for data collection, local research services, and 
 - **PostgreSQL** provides separate `tickrake`, `mlflow`, and `grafana` databases.
 - **MLflow** records experiments and model artifacts for research projects.
 - **MinIO** is a local S3-compatible store for intraday data.
-- **Grafana, Prometheus, Loki, Promtail, and cAdvisor** provide dashboards, metrics, and logs for the running stack.
+- **Grafana, Prometheus, Loki, Promtail, and the host Docker stats exporter** provide dashboards, metrics, and logs for the running stack.
 - **Options Monitor** is the intraday trading dashboard. It reads Tickrake data through the local runtime interfaces.
 
 Research repositories consume the published data and use MLflow; they do not live in this repository.
@@ -64,7 +64,7 @@ make prod-build && make prod-up
 | Logs | `make dev-logs` | `make research-logs` | `make data-ingestion-logs` | `make prod-logs` |
 | Restart | `make dev-restart` | `make research-restart` | `make data-ingestion-restart` | `make prod-restart` |
 
-Build commands are available for the dev and production profiles: `make dev-build`, `make prod-build`, and their `-no-cache` variants. Start one Tickrake service explicitly with `make dev-run JOB=futures_candles` or `make prod-run JOB=spx_0dte_options`.
+Build commands are available for the dev and production profiles: `make dev-build`, `make prod-build`, and their `-no-cache` variants. Start one Tickrake service explicitly with `make dev-run JOB=futures_candles` or `make prod-run JOB=0dte_options`.
 
 ## Secret scanning
 
@@ -85,7 +85,8 @@ services/
   postgres/       PostgreSQL service and database initialization
   mlflow/         MLflow image and server configuration
   minio/          Local S3-compatible storage
-  monitoring/     Grafana, Prometheus, Loki, Promtail, and cAdvisor
+  monitoring/     Grafana, Prometheus, Loki, and Promtail configuration
+  docker-stats-exporter/ Host Docker container-metrics exporter
   options-monitor/ Intraday trading dashboard Compose definition
 deploy/
   dev.yml         Dev ports, local Tickrake build, and dev home/config mounts
@@ -102,23 +103,23 @@ Each service owns its base Compose definition. `deploy/dev.yml` and `deploy/prod
 | Service | Dev | Production / Research |
 | --- | --- | --- |
 | PostgreSQL | `localhost:5433` | `localhost:5432` |
-| MLflow | `http://localhost:5001` | `http://localhost:5000` |
+| MLflow | `http://localhost:5001` | `http://localhost:5005` |
 | Options Monitor | `http://localhost:8504` | `http://localhost:8503` |
 | Grafana | `http://localhost:3001` | `http://localhost:3000` |
 | MinIO API | `localhost:9002` | `localhost:9000` |
 | MinIO console | `http://localhost:9003` | `http://localhost:9001` |
 
-Grafana and MinIO are not part of the research profile.
+Grafana and MinIO are not part of the research profile. Production MLflow uses port `5005` because macOS Control Center reserves port `5000` on this machine.
 
 ## Options Monitor
 
-Options Monitor is the user-facing intraday trading dashboard. It is enabled in both dev and production, starts with the rest of those profiles, and depends on MinIO. It reads the `tickrake-intraday` bucket from MinIO and has read-only access to the matching Tickrake home and AWS credentials.
+Options Monitor is the user-facing intraday trading dashboard. It is currently enabled only in dev and depends on MinIO. It reads the `tickrake-intraday` bucket from MinIO and has read-only access to the matching Tickrake home and AWS credentials.
 
-Both profiles build from `https://github.com/jwplatta/options-monitor.git#main`. Dev is available on port `8504`; production is available on port `8503`. The dashboard should rely on its published-data interfaces rather than assume Tickrake's on-disk storage layout is a permanent contract.
+The dev profile builds from `https://github.com/jwplatta/options-monitor.git#main` and is available on port `8504`. The dashboard should rely on its published-data interfaces rather than assume Tickrake's on-disk storage layout is a permanent contract.
 
 ## Tickrake jobs
 
-The production profile runs the stock, ETF, SPX options, equity Level 1/order-book, futures candles, economic-events, ingestion, metadata, publishing, and reconciliation jobs. The dev profile intentionally limits this to `futures_candles`, `economic_events`, and `reconciler`.
+The production profile runs the stock, ETF, SPX options, equity Level 1/order-book, futures Level 1, batch and streaming candles, economic-events, ingestion, metadata, publishing, and reconciliation jobs. The streaming candle jobs collect `$SPX` through `CHART_EQUITY` and `/ES` through `CHART_FUTURES`. The dev profile intentionally limits this to `futures_candles`, `economic_events`, and `reconciler`.
 
 To add a job to dev, place its dev definition under `services/tickrake/jobs/dev/`, add `dev` to its service profile in `services/tickrake/compose.yml`, and override its file path and mounts in `deploy/dev.yml`. See [docs/SETUP.md](docs/SETUP.md) for the complete example.
 
