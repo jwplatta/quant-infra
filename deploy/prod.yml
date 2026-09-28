@@ -21,7 +21,7 @@ services:
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
 
-  spx_0dte_options:
+  0dte_options:
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
