@@ -3,7 +3,7 @@ universes:
     - symbol: $SPX
       option_roots: [SPXW]
     - symbol: $NDX
-      option_roots: [NDXW]
+      option_roots: [NDXP]
     - symbol: SPY
     - symbol: QQQ
     - symbol: IWM

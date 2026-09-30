@@ -5,7 +5,7 @@ require "tickrake"
 
 Tickrake.job "spx_longer_dated_options" do
   provider :schwab
-  universe "spx_symbols"
+  universe "0dte_symbols"
 
   schedule do
     every 5.minutes

@@ -101,11 +101,11 @@ schedule:
     tasks:
       - compact:
           subject: option_samples
-          universe: spx_symbols
+          universe: 0dte_symbols
           delete_sources: true
       - archive:
           subject: option_samples
-          universe: spx_symbols
+          universe: 0dte_symbols
           destination: s3_archive
           artifacts: [csv, parquet]
           retain_local:
@@ -225,7 +225,7 @@ schedule:
         end: "15:00"
     dte_buckets:
       - 0DTE
-    universe: spx_symbols
+    universe: 0dte_symbols
 
   spx_short_dated_options:
     provider: schwab
@@ -246,7 +246,7 @@ schedule:
       - 8DTE
       - 9DTE
       - 10DTE
-    universe: spx_symbols
+    universe: 0dte_symbols
 
   spx_longer_dated_options:
     provider: schwab
@@ -308,4 +308,4 @@ schedule:
       - 58DTE
       - 59DTE
       - 60DTE
-    universe: spx_symbols
+    universe: 0dte_symbols

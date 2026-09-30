@@ -12,8 +12,8 @@ Tickrake.job "compact_all_option_samples" do
   end
 
   maintenance do
-    compact :option_samples, universe: "spx_symbols", delete_sources: true
-    archive :option_samples, universe: "spx_symbols",
+    compact :option_samples, universe: "0dte_symbols", delete_sources: true
+    archive :option_samples, universe: "0dte_symbols",
             to: :s3_archive, artifacts: %i[csv parquet],
             retain: { parquet: true }
 
