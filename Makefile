@@ -10,9 +10,12 @@ PROD_DOWN = ENV=prod COMPOSE_PROFILES=prod,dev docker compose --project-director
 DEV  = ENV=dev COMPOSE_PROFILES=dev docker compose --project-directory . $(COMPOSE_BASE) -f deploy/dev.yml
 RESEARCH = ENV=prod COMPOSE_PROFILES=research docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
 DATA_INGESTION = ENV=prod COMPOSE_PROFILES=data-ingestion docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
+PROD_SCRAPERS = stock_options etf_options 0dte_options spx_short_dated_options \
+                spx_longer_dated_options futures_candles market_streams events_ingestor \
+                metadata_sync reconciler
 
 .PHONY: hooks-install secrets-check
-.PHONY: prod-build prod-build-no-cache prod-up prod-down prod-logs prod-ps prod-restart prod-run
+.PHONY: prod-build prod-build-no-cache prod-up prod-down prod-logs prod-ps prod-restart prod-run prod-scrapers-up
 .PHONY: dev-build dev-build-no-cache dev-up dev-down dev-logs dev-ps dev-restart dev-run
 .PHONY: research-up research-down research-logs research-ps research-restart
 .PHONY: data-ingestion-up data-ingestion-down data-ingestion-logs data-ingestion-ps data-ingestion-restart
@@ -32,6 +35,9 @@ prod-build-no-cache:
 
 prod-up:
 	$(PROD) up -d
+
+prod-scrapers-up:
+	$(PROD) up -d --no-deps $(PROD_SCRAPERS)
 
 prod-down:
 	$(PROD_DOWN) down

@@ -66,6 +66,11 @@ make prod-build && make prod-up
 
 Build commands are available for the dev and production profiles: `make dev-build`, `make prod-build`, and their `-no-cache` variants. Start one Tickrake service explicitly with `make dev-run JOB=futures_candles` or `make prod-run JOB=0dte_options`.
 
+For a production scraper host without the research, monitoring, MinIO, Options
+Monitor, or intraday-publishing services, run `make prod-scrapers-up`. It
+starts only the configured Tickrake scrapers, `market_streams`,
+`events_ingestor`, `metadata_sync`, and `reconciler`.
+
 ## Secret scanning
 
 Install the repository hooks once after installing [Gitleaks](https://github.com/gitleaks/gitleaks):
