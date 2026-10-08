@@ -21,13 +21,16 @@ providers:
       # rate_limit_max_requests: 120
       # rate_limit_interval_seconds: 60
     symbol_map:
-      /ES: ^ES
-      /NQ: ^NQ
-      /RTY: ^RTY
-      /YM: ^YM
       /CL: ^CL
+      /ES: ^ES
       /GC: ^GC
+      /NQ: ^NQ
+      /NG: ^NG
+      /RTY: ^RTY
+      /SI: ^SI
+      /YM: ^YM
       /ZB: ^ZB
+
   ibkr-paper:
     adapter: ibkr
     settings:
@@ -75,237 +78,237 @@ runtime:
 universes:
   file: universes.yml
 
-schedule:
-  futures_candles:
-    type: candles
-    provider: schwab
-    run_at: "16:30"
-    days: [mon, tue, wed, thu, fri]
-    lookback_days: 90
-    frequencies: [day, 30min, 5min, 1min]
-    universe:
-      - symbol: /ES
-        start_date: "2026-06-01"
-      - symbol: /NQ
-        start_date: "2026-06-01"
-      - symbol: /RTY
-        start_date: "2026-06-01"
-      - symbol: /YM
-        start_date: "2026-06-01"
+# schedule:
+  # futures_candles:
+  #   type: candles
+  #   provider: schwab
+  #   run_at: "16:30"
+  #   days: [mon, tue, wed, thu, fri]
+  #   lookback_days: 90
+  #   frequencies: [day, 30min, 5min, 1min]
+  #   universe:
+  #     - symbol: /ES
+  #       start_date: "2026-06-01"
+  #     - symbol: /NQ
+  #       start_date: "2026-06-01"
+  #     - symbol: /RTY
+  #       start_date: "2026-06-01"
+  #     - symbol: /YM
+  #       start_date: "2026-06-01"
 
-  compact_spxw:
-    type: maintenance
-    provider: schwab
-    run_at: "15:30"
-    days: [mon, tue, wed, thu, fri]
-    tasks:
-      - compact:
-          subject: option_samples
-          universe: 0dte_symbols
-          delete_sources: true
-      - archive:
-          subject: option_samples
-          universe: 0dte_symbols
-          destination: s3_archive
-          artifacts: [csv, parquet]
-          retain_local:
-            csv: false
-            parquet: true
+  # compact_spxw:
+  #   type: maintenance
+  #   provider: schwab
+  #   run_at: "15:30"
+  #   days: [mon, tue, wed, thu, fri]
+  #   tasks:
+  #     - compact:
+  #         subject: option_samples
+  #         universe: 0dte_symbols
+  #         delete_sources: true
+  #     - archive:
+  #         subject: option_samples
+  #         universe: 0dte_symbols
+  #         destination: s3_archive
+  #         artifacts: [csv, parquet]
+  #         retain_local:
+  #           csv: false
+  #           parquet: true
 
-  compact_non_spxw_option_samples:
-    type: maintenance
-    provider: schwab
-    run_at: "15:40"
-    days: [mon, tue, wed, thu, fri]
-    tasks:
-      - compact:
-          subject: option_samples
-          universes: [stock_option_symbols, etf_option_symbols]
-          delete_sources: true
-      - archive:
-          subject: option_samples
-          universes: [stock_option_symbols, etf_option_symbols]
-          destination: s3_archive
-          artifacts: [csv, parquet]
-          retain_local:
-            csv: false
-            parquet: true
+  # compact_non_spxw_option_samples:
+  #   type: maintenance
+  #   provider: schwab
+  #   run_at: "15:40"
+  #   days: [mon, tue, wed, thu, fri]
+  #   tasks:
+  #     - compact:
+  #         subject: option_samples
+  #         universes: [stock_option_symbols, etf_option_symbols]
+  #         delete_sources: true
+  #     - archive:
+  #         subject: option_samples
+  #         universes: [stock_option_symbols, etf_option_symbols]
+  #         destination: s3_archive
+  #         artifacts: [csv, parquet]
+  #         retain_local:
+  #           csv: false
+  #           parquet: true
 
-  stock_options:
-    provider: schwab
-    type: options
-    interval_seconds: 1800
-    windows:
-      - days: [mon, tue, wed, thu, fri]
-        start: "08:30"
-        end: "15:05"
-    dte_buckets:
-      - 0DTE
-      - 1DTE
-      - 2DTE
-      - 3DTE
-      - 4DTE
-      - 5DTE
-      - 6DTE
-      - 7DTE
-      - 8DTE
-      - 9DTE
-      - 10DTE
-      - 11DTE
-      - 12DTE
-      - 13DTE
-      - 14DTE
-      - 15DTE
-      - 16DTE
-      - 17DTE
-      - 18DTE
-      - 19DTE
-      - 20DTE
-      - 21DTE
-      - 22DTE
-      - 23DTE
-      - 24DTE
-      - 25DTE
-      - 26DTE
-      - 27DTE
-      - 28DTE
-      - 29DTE
-      - 30DTE
-    universe: stock_option_symbols
+  # stock_options:
+  #   provider: schwab
+  #   type: options
+  #   interval_seconds: 1800
+  #   windows:
+  #     - days: [mon, tue, wed, thu, fri]
+  #       start: "08:30"
+  #       end: "15:05"
+  #   dte_buckets:
+  #     - 0DTE
+  #     - 1DTE
+  #     - 2DTE
+  #     - 3DTE
+  #     - 4DTE
+  #     - 5DTE
+  #     - 6DTE
+  #     - 7DTE
+  #     - 8DTE
+  #     - 9DTE
+  #     - 10DTE
+  #     - 11DTE
+  #     - 12DTE
+  #     - 13DTE
+  #     - 14DTE
+  #     - 15DTE
+  #     - 16DTE
+  #     - 17DTE
+  #     - 18DTE
+  #     - 19DTE
+  #     - 20DTE
+  #     - 21DTE
+  #     - 22DTE
+  #     - 23DTE
+  #     - 24DTE
+  #     - 25DTE
+  #     - 26DTE
+  #     - 27DTE
+  #     - 28DTE
+  #     - 29DTE
+  #     - 30DTE
+  #   universe: stock_option_symbols
 
-  etf_options:
-    provider: schwab
-    type: options
-    interval_seconds: 600 #every 10 min
-    windows:
-      - days: [mon, tue, wed, thu, fri]
-        start: "08:30"
-        end: "15:05"
-    dte_buckets:
-      - 0DTE
-      - 1DTE
-      - 2DTE
-      - 3DTE
-      - 4DTE
-      - 5DTE
-      - 6DTE
-      - 7DTE
-      - 8DTE
-      - 9DTE
-      - 10DTE
-      - 11DTE
-      - 12DTE
-      - 13DTE
-      - 14DTE
-      - 15DTE
-      - 16DTE
-      - 17DTE
-      - 18DTE
-      - 19DTE
-      - 20DTE
-      - 21DTE
-      - 22DTE
-      - 23DTE
-      - 24DTE
-      - 25DTE
-      - 26DTE
-      - 27DTE
-      - 28DTE
-      - 29DTE
-      - 30DTE
-    universe: etf_option_symbols
+  # etf_options:
+  #   provider: schwab
+  #   type: options
+  #   interval_seconds: 600 #every 10 min
+  #   windows:
+  #     - days: [mon, tue, wed, thu, fri]
+  #       start: "08:30"
+  #       end: "15:05"
+  #   dte_buckets:
+  #     - 0DTE
+  #     - 1DTE
+  #     - 2DTE
+  #     - 3DTE
+  #     - 4DTE
+  #     - 5DTE
+  #     - 6DTE
+  #     - 7DTE
+  #     - 8DTE
+  #     - 9DTE
+  #     - 10DTE
+  #     - 11DTE
+  #     - 12DTE
+  #     - 13DTE
+  #     - 14DTE
+  #     - 15DTE
+  #     - 16DTE
+  #     - 17DTE
+  #     - 18DTE
+  #     - 19DTE
+  #     - 20DTE
+  #     - 21DTE
+  #     - 22DTE
+  #     - 23DTE
+  #     - 24DTE
+  #     - 25DTE
+  #     - 26DTE
+  #     - 27DTE
+  #     - 28DTE
+  #     - 29DTE
+  #     - 30DTE
+  #   universe: etf_option_symbols
 
-  0dte_options:
-    provider: schwab
-    type: options
-    interval_seconds: 5
-    windows:
-      - days: [mon, tue, wed, thu, fri]
-        start: "08:30"
-        end: "15:00"
-    dte_buckets:
-      - 0DTE
-    universe: 0dte_symbols
+  # 0dte_options:
+  #   provider: schwab
+  #   type: options
+  #   interval_seconds: 5
+  #   windows:
+  #     - days: [mon, tue, wed, thu, fri]
+  #       start: "08:30"
+  #       end: "15:00"
+  #   dte_buckets:
+  #     - 0DTE
+  #   universe: 0dte_symbols
 
-  spx_short_dated_options:
-    provider: schwab
-    type: options
-    interval_seconds: 60
-    windows:
-      - days: [mon, tue, wed, thu, fri]
-        start: "08:30"
-        end: "15:05"
-    dte_buckets:
-      - 1DTE
-      - 2DTE
-      - 3DTE
-      - 4DTE
-      - 5DTE
-      - 6DTE
-      - 7DTE
-      - 8DTE
-      - 9DTE
-      - 10DTE
-    universe: 0dte_symbols
+  # spx_short_dated_options:
+  #   provider: schwab
+  #   type: options
+  #   interval_seconds: 60
+  #   windows:
+  #     - days: [mon, tue, wed, thu, fri]
+  #       start: "08:30"
+  #       end: "15:05"
+  #   dte_buckets:
+  #     - 1DTE
+  #     - 2DTE
+  #     - 3DTE
+  #     - 4DTE
+  #     - 5DTE
+  #     - 6DTE
+  #     - 7DTE
+  #     - 8DTE
+  #     - 9DTE
+  #     - 10DTE
+  #   universe: 0dte_symbols
 
-  spx_longer_dated_options:
-    provider: schwab
-    type: options
-    interval_seconds: 300
-    windows:
-      - days: [mon, tue, wed, thu, fri]
-        start: "08:30"
-        end: "15:05"
-    dte_buckets:
-      - 11DTE
-      - 12DTE
-      - 13DTE
-      - 14DTE
-      - 14DTE
-      - 15DTE
-      - 16DTE
-      - 17DTE
-      - 18DTE
-      - 19DTE
-      - 20DTE
-      - 21DTE
-      - 22DTE
-      - 23DTE
-      - 24DTE
-      - 25DTE
-      - 26DTE
-      - 27DTE
-      - 28DTE
-      - 29DTE
-      - 30DTE
-      - 31DTE
-      - 32DTE
-      - 33DTE
-      - 34DTE
-      - 35DTE
-      - 36DTE
-      - 37DTE
-      - 38DTE
-      - 39DTE
-      - 40DTE
-      - 41DTE
-      - 42DTE
-      - 43DTE
-      - 44DTE
-      - 45DTE
-      - 46DTE
-      - 47DTE
-      - 48DTE
-      - 49DTE
-      - 50DTE
-      - 51DTE
-      - 52DTE
-      - 53DTE
-      - 54DTE
-      - 55DTE
-      - 56DTE
-      - 57DTE
-      - 58DTE
-      - 59DTE
-      - 60DTE
-    universe: 0dte_symbols
+  # spx_longer_dated_options:
+  #   provider: schwab
+  #   type: options
+  #   interval_seconds: 300
+  #   windows:
+  #     - days: [mon, tue, wed, thu, fri]
+  #       start: "08:30"
+  #       end: "15:05"
+  #   dte_buckets:
+  #     - 11DTE
+  #     - 12DTE
+  #     - 13DTE
+  #     - 14DTE
+  #     - 14DTE
+  #     - 15DTE
+  #     - 16DTE
+  #     - 17DTE
+  #     - 18DTE
+  #     - 19DTE
+  #     - 20DTE
+  #     - 21DTE
+  #     - 22DTE
+  #     - 23DTE
+  #     - 24DTE
+  #     - 25DTE
+  #     - 26DTE
+  #     - 27DTE
+  #     - 28DTE
+  #     - 29DTE
+  #     - 30DTE
+  #     - 31DTE
+  #     - 32DTE
+  #     - 33DTE
+  #     - 34DTE
+  #     - 35DTE
+  #     - 36DTE
+  #     - 37DTE
+  #     - 38DTE
+  #     - 39DTE
+  #     - 40DTE
+  #     - 41DTE
+  #     - 42DTE
+  #     - 43DTE
+  #     - 44DTE
+  #     - 45DTE
+  #     - 46DTE
+  #     - 47DTE
+  #     - 48DTE
+  #     - 49DTE
+  #     - 50DTE
+  #     - 51DTE
+  #     - 52DTE
+  #     - 53DTE
+  #     - 54DTE
+  #     - 55DTE
+  #     - 56DTE
+  #     - 57DTE
+  #     - 58DTE
+  #     - 59DTE
+  #     - 60DTE
+  #   universe: 0dte_symbols
