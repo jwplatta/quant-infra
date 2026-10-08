@@ -14,6 +14,9 @@ universes:
   etf_option_symbols:
     file: universes/etf_option_symbols.yml
 
+  equity_symbols:
+    file: universes/equity_symbols.yml
+
   eod_candle_symbols:
     - symbol: $SPX
     - symbol: $TNX
