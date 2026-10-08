@@ -14,7 +14,7 @@ Tickrake.job "compact_all_option_samples" do
   maintenance do
     compact :option_samples, universe: "0dte_symbols", delete_sources: true
     archive :option_samples, universe: "0dte_symbols",
-            to: :s3_archive, artifacts: %i[csv parquet],
+            to: :s3_archive, artifacts: %i[parquet],
             retain: { parquet: true }
 
     compact :option_samples,
@@ -22,7 +22,7 @@ Tickrake.job "compact_all_option_samples" do
             delete_sources: true
     archive :option_samples,
             universes: ["stock_option_symbols", "etf_option_symbols"],
-            to: :s3_archive, artifacts: %i[csv parquet],
+            to: :s3_archive, artifacts: %i[parquet],
             retain: { parquet: true }
   end
 end
