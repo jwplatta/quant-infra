@@ -5,7 +5,7 @@
     {
       "title": "Option Samples (24h)",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "gridPos": { "h": 6, "w": 4, "x": 0, "y": 0 },
       "datasource": { "type": "loki" },
       "targets": [
         {
@@ -34,7 +34,7 @@
     {
       "title": "Candles (24h)",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "gridPos": { "h": 6, "w": 4, "x": 4, "y": 0 },
       "datasource": { "type": "loki" },
       "targets": [
         {
@@ -63,11 +63,40 @@
     {
       "title": "Level One Events (24h)",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "gridPos": { "h": 6, "w": 4, "x": 8, "y": 0 },
       "datasource": { "type": "loki" },
       "targets": [
         {
-          "expr": "sum(sum_over_time({job_name_from_file=~\"events_ingestor.*\"} | json | event=\"parquet_written\" | unwrap event_count [24h]))",
+          "expr": "sum(sum_over_time({job_name_from_file=~\"events_ingestor.*\"} | json | event=\"parquet_written\" | data_type=\"level_one\" | unwrap event_count [24h]))",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 1000 },
+              { "color": "green", "value": 10000 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Order Book Events (24h)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 4, "x": 12, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum(sum_over_time({job_name_from_file=~\"events_ingestor.*\"} | json | event=\"parquet_written\" | data_type=\"order_book\" | unwrap event_count [24h]))",
           "refId": "A"
         }
       ],
@@ -92,7 +121,7 @@
     {
       "title": "Total Fetches (24h)",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 3, "x": 18, "y": 0 },
+      "gridPos": { "h": 6, "w": 4, "x": 16, "y": 0 },
       "datasource": { "type": "loki" },
       "targets": [
         {
@@ -119,7 +148,7 @@
     {
       "title": "Failed Fetches (24h)",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 3, "x": 21, "y": 0 },
+      "gridPos": { "h": 6, "w": 4, "x": 20, "y": 0 },
       "datasource": { "type": "loki" },
       "targets": [
         {
@@ -148,7 +177,7 @@
     {
       "title": "Option Samples by Symbol (24h)",
       "type": "piechart",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 6 },
       "datasource": { "type": "loki" },
       "targets": [
         {
@@ -166,7 +195,7 @@
     {
       "title": "Candles by Symbol (24h)",
       "type": "piechart",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 6 },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 6 },
       "datasource": { "type": "loki" },
       "targets": [
         {
@@ -184,11 +213,29 @@
     {
       "title": "Level One Events by Symbol (24h)",
       "type": "piechart",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 6 },
       "datasource": { "type": "loki" },
       "targets": [
         {
-          "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\"events_ingestor.*\"} | json | event=\"parquet_written\" | unwrap event_count [24h]))",
+          "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\"events_ingestor.*\"} | json | event=\"parquet_written\" | data_type=\"level_one\" | unwrap event_count [24h]))",
+          "legendFormat": "{{symbol}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" }
+        }
+      }
+    },
+    {
+      "title": "Order Book Events by Symbol (24h)",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 6 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\"events_ingestor.*\"} | json | event=\"parquet_written\" | data_type=\"order_book\" | unwrap event_count [24h]))",
           "legendFormat": "{{symbol}}",
           "refId": "A"
         }
@@ -220,7 +267,7 @@
       }
     }
   ],
-  "refresh": "",
+  "refresh": "30s",
   "schemaVersion": 39,
   "tags": ["tickrake", "overview"],
   "templating": { "list": [] },
