@@ -10,40 +10,43 @@ Tickrake.job "market_streams" do
     stale_timeout 60
 
     level_one "equity_level_one" do
-      symbols "SPY", "QQQ", "IWM"
+      universe "equity_symbols"
       services [:level_one_equities]
-      rotation_interval 300
+      rotation_size_mb 128
+      rotation_interval 1800
       schedule { weekdays from: "08:30", to: "15:00" }
     end
 
     order_book "equity_order_book" do
-      symbols "SPY", "QQQ", "IWM"
+      universe "equity_symbols"
       services [:NYSE_BOOK, :NASDAQ_BOOK]
-      rotation_interval 300
+      rotation_size_mb 128
+      rotation_interval 1800
       schedule { weekdays from: "08:30", to: "15:00" }
     end
 
-    chart_stream "spx_chart_stream" do
-      symbols "$SPX"
+    chart_stream "equity_chart_streams" do
+      symbols "$SPX", "$VIX"
       services [:chart_equity]
-      flush_interval 60
+      flush_interval 120
       schedule { weekdays from: "08:30", to: "15:00" }
     end
 
     level_one "futures_level_one" do
-      symbols "/ES"
+      symbols "/ES", "/NQ", "/CL", "/ZB", "/NG", "/GC", "/SI", "/RTY", "/YM"
       services [:level_one_futures]
-      rotation_interval 300
+      rotation_size_mb 128
+      rotation_interval 1800
       schedule do
         days %w[sun mon tue wed thu], from: "17:00", to: "23:59"
         days %w[mon tue wed thu fri], from: "00:00", to: "16:00"
       end
     end
 
-    chart_stream "futures_chart_stream" do
-      symbols "/ES"
+    chart_stream "futures_chart_streams" do
+      symbols "/ES", "/NQ"
       services [:chart_futures]
-      flush_interval 60
+      flush_interval 120
       schedule do
         days %w[sun mon tue wed thu], from: "17:00", to: "23:59"
         days %w[mon tue wed thu fri], from: "00:00", to: "16:00"
