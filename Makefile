@@ -10,8 +10,8 @@ PROD_DOWN = ENV=prod COMPOSE_PROFILES=prod,dev docker compose --project-director
 DEV  = ENV=dev COMPOSE_PROFILES=dev docker compose --project-directory . $(COMPOSE_BASE) -f deploy/dev.yml
 RESEARCH = ENV=prod COMPOSE_PROFILES=research docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
 DATA_INGESTION = ENV=prod COMPOSE_PROFILES=data-ingestion docker compose --project-directory . $(COMPOSE_BASE) -f deploy/prod.yml
-PROD_SCRAPERS = stock_options etf_options 0dte_options spx_short_dated_options \
-                spx_longer_dated_options futures_candles market_streams events_ingestor \
+PROD_SCRAPERS = stock_options etf_options 0dte_options index_short_dated_options \
+                index_longer_dated_options futures_candles market_streams events_ingestor \
                 metadata_sync reconciler
 
 .PHONY: hooks-install secrets-check

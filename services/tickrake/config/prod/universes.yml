@@ -1,5 +1,5 @@
 universes:
-  0dte_symbols:
+  index_symbols:
     - symbol: $SPX
       option_roots: [SPXW]
     - symbol: $NDX

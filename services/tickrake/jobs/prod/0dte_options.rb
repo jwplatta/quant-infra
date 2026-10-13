@@ -5,7 +5,7 @@ require "tickrake"
 
 Tickrake.job "0dte_options" do
   provider :schwab
-  universe "0dte_symbols"
+  universe "index_symbols"
 
   schedule do
     every 10.seconds

@@ -3,9 +3,9 @@
 
 require "tickrake"
 
-Tickrake.job "spx_short_dated_options" do
+Tickrake.job "index_short_dated_options" do
   provider :schwab
-  universe "0dte_symbols"
+  universe "index_symbols"
 
   schedule do
     every 2.minutes

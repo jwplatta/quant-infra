@@ -35,19 +35,19 @@ services:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/0dte_options.rb
 
-  spx_short_dated_options:
+  index_short_dated_options:
     <<: *tickrake-base
     profiles: [prod, data-ingestion]
     environment:
       <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/spx_short_dated_options.rb
+      TICKRAKE_JOB_FILE: /jobs/prod/index_short_dated_options.rb
 
-  spx_longer_dated_options:
+  index_longer_dated_options:
     <<: *tickrake-base
     profiles: [prod, data-ingestion]
     environment:
       <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/spx_longer_dated_options.rb
+      TICKRAKE_JOB_FILE: /jobs/prod/index_longer_dated_options.rb
 
   futures_candles:
     <<: *tickrake-base

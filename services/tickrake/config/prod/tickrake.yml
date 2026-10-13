@@ -230,7 +230,7 @@ universes:
   #     - 0DTE
   #   universe: 0dte_symbols
 
-  # spx_short_dated_options:
+  # index_short_dated_options:
   #   provider: schwab
   #   type: options
   #   interval_seconds: 60
@@ -251,7 +251,7 @@ universes:
   #     - 10DTE
   #   universe: 0dte_symbols
 
-  # spx_longer_dated_options:
+  # index_longer_dated_options:
   #   provider: schwab
   #   type: options
   #   interval_seconds: 300
