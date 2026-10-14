@@ -1,14 +1,21 @@
 services:
   postgres:
     image: postgres:17
-    profiles: [dev, prod, research]
+    profiles: [dev, prod, research, data-ingestion]
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      TICKRAKE_DB_PASSWORD: ${PGPASSWORD:-}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./services/postgres/init:/docker-entrypoint-initdb.d:ro
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tickrake"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
 volumes:
   postgres_data:

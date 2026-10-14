@@ -11,7 +11,7 @@ GRANT ALL PRIVILEGES ON DATABASE grafana TO grafana;
 GRANT ALL ON SCHEMA public TO grafana;
 
 CREATE DATABASE tickrake;
-CREATE USER tickrake_user WITH PASSWORD 'tickrake';
+CREATE USER tickrake_user;
 GRANT ALL PRIVILEGES ON DATABASE tickrake TO tickrake_user;
 \c tickrake
 GRANT ALL ON SCHEMA public TO tickrake_user;

@@ -23,6 +23,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Production Tickrake jobs now use the shared PostgreSQL `tickrake` database;
+  SQLite remains the default backend for development.
 - Container Stats dashboard now queries named Docker stats metrics instead of
   anonymous cAdvisor cgroup paths.
 - Removed redundant cAdvisor service and Prometheus scrape; the host Docker

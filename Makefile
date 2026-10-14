@@ -1,4 +1,5 @@
-COMPOSE_BASE = -f services/postgres/compose.yml \
+COMPOSE_BASE = --env-file envs/secrets.env \
+               -f services/postgres/compose.yml \
                -f services/tickrake/compose.yml \
                -f services/options-monitor/compose.yml \
                -f services/mlflow/compose.yml \

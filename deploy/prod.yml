@@ -6,6 +6,9 @@ services:
       - "8503:8501"
 
   stock_options:
+    depends_on:
+      postgres:
+        condition: service_healthy
     build:
       context: https://github.com/jwplatta/tickrake.git#main
     volumes:
@@ -15,6 +18,9 @@ services:
       - ~/.aws:/root/.aws:ro
 
   etf_options:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
@@ -22,6 +28,9 @@ services:
       - ~/.aws:/root/.aws:ro
 
   0dte_options:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
@@ -29,6 +38,9 @@ services:
       - ~/.aws:/root/.aws:ro
 
   index_short_dated_options:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
@@ -36,6 +48,9 @@ services:
       - ~/.aws:/root/.aws:ro
 
   index_longer_dated_options:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
@@ -43,6 +58,9 @@ services:
       - ~/.aws:/root/.aws:ro
 
   futures_candles:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
@@ -50,6 +68,9 @@ services:
       - ~/.aws:/root/.aws:ro
 
   market_streams:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
@@ -57,28 +78,43 @@ services:
       - ~/.aws:/root/.aws:ro
 
   events_ingestor:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
       - ~/.aws:/root/.aws:ro
 
   metadata_sync:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
 
   intraday_publisher:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
 
   economic_events:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
       - ~/.aws:/root/.aws:ro
 
   reconciler:
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
