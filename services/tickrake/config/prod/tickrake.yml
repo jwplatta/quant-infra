@@ -1,5 +1,11 @@
 timezone: America/Chicago
 sqlite_path: ~/.tickrake/tickrake.sqlite3
+database:
+  backend: postgres
+  host: postgres
+  port: 5432
+  database: tickrake
+  user: tickrake_user
 
 default_provider: ibkr-paper
 providers:
@@ -21,15 +27,21 @@ providers:
       # rate_limit_max_requests: 120
       # rate_limit_interval_seconds: 60
     symbol_map:
+      /6E: ^6E
       /CL: ^CL
       /ES: ^ES
+      /HG: ^HG
       /GC: ^GC
-      /NQ: ^NQ
       /NG: ^NG
+      /NQ: ^NQ
       /RTY: ^RTY
       /SI: ^SI
       /YM: ^YM
       /ZB: ^ZB
+      /ZC: ^ZC
+      /ZN: ^ZN
+      /ZS: ^ZS
+      /ZW: ^ZW
 
   ibkr-paper:
     adapter: ibkr
