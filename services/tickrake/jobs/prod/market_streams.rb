@@ -33,7 +33,7 @@ Tickrake.job "market_streams" do
     end
 
     level_one "futures_level_one" do
-      symbols "/ES", "/NQ", "/CL", "/ZB", "/NG", "/GC", "/SI", "/RTY", "/YM"
+      symbols "/ES", "/NQ", "/CL", "/ZB", "/ZN", "/6E", "/ZC", "/ZS", "/ZW", "/NG", "/GC", "/SI", "/RTY", "/YM", "/HG"
       services [:level_one_futures]
       rotation_size_mb 512
       rotation_interval 3600
@@ -44,7 +44,7 @@ Tickrake.job "market_streams" do
     end
 
     chart_stream "futures_chart_streams" do
-      symbols "/ES", "/NQ"
+      symbols "/ES", "/NQ", "/RTY"
       services [:chart_futures]
       flush_interval 120
       schedule do
