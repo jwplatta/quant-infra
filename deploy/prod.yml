@@ -111,6 +111,14 @@ services:
       - ~/.tickrake:/root/.tickrake
       - ~/.aws:/root/.aws:ro
 
+  fundamentals:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+
   reconciler:
     depends_on:
       postgres:

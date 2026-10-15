@@ -17,6 +17,9 @@ universes:
   equity_symbols:
     file: universes/equity_symbols.yml
 
+  fundamentals_symbols:
+    file: universes/fundamentals_symbols.yml
+
   eod_candle_symbols:
     - symbol: $SPX
     - symbol: $TNX
