@@ -26,16 +26,9 @@ Tickrake.job "compact_all_option_samples_for_date" do
     end_date sample_date
 
     compact :option_samples, universe: "index_symbols", delete_sources: true
-    archive :option_samples, universe: "index_symbols",
-            to: :s3_archive, artifacts: %i[parquet],
-            retain: { parquet: true }
-
     compact :option_samples,
             universes: ["stock_option_symbols", "etf_option_symbols"],
             delete_sources: true
-    archive :option_samples,
-            universes: ["stock_option_symbols", "etf_option_symbols"],
-            to: :s3_archive, artifacts: %i[parquet],
-            retain: { parquet: true }
+
   end
 end
