@@ -120,6 +120,10 @@ services:
       - ~/.tickrake:/root/.tickrake
       - ~/.aws:/root/.aws:ro
 
+  alloy:
+    volumes:
+      - ./services/monitoring/alloy/config-prod.alloy:/etc/alloy/config.alloy:ro
+      - ~/.tickrake/logs:/var/log/tickrake:ro
   promtail:
     volumes:
       - ./services/monitoring/promtail/promtail-prod.yml:/etc/promtail/promtail.yml:ro

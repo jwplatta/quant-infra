@@ -23,6 +23,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Replaced the normal Promtail log-shipping service with Grafana Alloy while
+  retaining Promtail in a separate fallback profile during troubleshooting.
 - Production Tickrake jobs now use the shared PostgreSQL `tickrake` database;
   SQLite remains the default backend for development.
 - Container Stats dashboard now queries named Docker stats metrics instead of

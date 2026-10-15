@@ -53,6 +53,10 @@ services:
       - "9002:9000"
       - "9003:9001"
 
+  alloy:
+    volumes:
+      - ./services/monitoring/alloy/config-dev.alloy:/etc/alloy/config.alloy:ro
+      - ~/.tickrake-dev/logs:/var/log/tickrake:ro
   promtail:
     volumes:
       - ./services/monitoring/promtail/promtail-dev.yml:/etc/promtail/promtail.yml:ro
