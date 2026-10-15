@@ -6,7 +6,7 @@ require "tickrake"
 Tickrake.job "metadata_sync" do
   schedule do
     every 30.seconds
-    weekdays from: "08:00", to: "16:00"
+    weekdays from: "00:00", to: "23:59"
   end
 
   metadata_sync do
