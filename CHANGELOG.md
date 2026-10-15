@@ -9,6 +9,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Expanded production equity, stock-option, and ETF-option symbol lists and added index option roots.
+
 - Daily Schwab fundamentals collection at 15:00 America/Chicago, covering all tracked S&P 500 constituents, production equity and ETF universes, and the imported dividend watchlist.
 
 - Host-side Docker stats exporter for Docker Desktop container metrics with

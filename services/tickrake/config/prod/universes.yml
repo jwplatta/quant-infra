@@ -1,12 +1,20 @@
 universes:
   index_symbols:
     - symbol: $SPX
-      option_roots: [SPXW]
+      option_roots: [SPX, SPXW]
     - symbol: $NDX
-      option_roots: [NDXP]
+      option_roots: [NDX, NDXP]
     - symbol: SPY
     - symbol: QQQ
     - symbol: IWM
+    - symbol: $RUT
+      option_roots: [RUT, RUTW]
+    - symbol: $XSP
+    - symbol: $VIX
+      option_roots: [VIX, VIXW]
+    - symbol: $DJX
+      option_roots: [DJX, DJXW]
+
 
   stock_option_symbols:
     file: universes/stock_option_symbols.yml
