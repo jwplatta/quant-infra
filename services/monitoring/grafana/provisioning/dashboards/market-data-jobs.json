@@ -1,0 +1,161 @@
+{
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "Candles Collected by Symbol (5m buckets)",
+      "description": "Rows reported by candle fetch_success events.",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\"$candle_job\"} | json | event=\"fetch_success\" | unwrap row_count [5m]))", "legendFormat": "{{symbol}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } }, "overrides": [] }
+    },
+    {
+      "title": "Candle Fetches and Errors (5m buckets)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        { "expr": "sum by (job_name_from_file) (count_over_time({job_name_from_file=~\"$candle_job\"} | json | event=\"fetch_success\" [5m]))", "legendFormat": "{{job_name_from_file}} successes", "refId": "A" },
+        { "expr": "sum by (job_name_from_file) (count_over_time({job_name_from_file=~\"$candle_job\"} | json | level=\"ERROR\" [5m]))", "legendFormat": "{{job_name_from_file}} errors", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "none" } }, "color": { "mode": "palette-classic" } }, "overrides": [] }
+    },
+    {
+      "title": "Candle Fetch Duration (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "avg by (job_name_from_file) (avg_over_time({job_name_from_file=~\"$candle_job\"} | json | event=\"fetch_success\" | unwrap duration_ms [5m]))", "legendFormat": "{{job_name_from_file}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "drawStyle": "line", "fillOpacity": 10 }, "color": { "mode": "palette-classic" } }, "overrides": [] }
+    },
+    {
+      "title": "Economic Events Container",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "docker_container_up{service=\"economic_events\"}", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "0": { "text": "Down", "color": "red" }, "1": { "text": "Running", "color": "green" } } }] } }
+    },
+    {
+      "title": "Economic Event Rows (24h)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 16 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(sum_over_time({job_name_from_file=\"economic_events\"} | json | msg=\"economic_events_written\" | unwrap row_count [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] } } }
+    },
+    {
+      "title": "Economic Event Scrapes (24h)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 16 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(count_over_time({job_name_from_file=\"economic_events\"} | json | event=\"scrape_end\" [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" }
+    },
+    {
+      "title": "Economic Events Errors (24h)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 16 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(count_over_time({job_name_from_file=\"economic_events\"} | json | level=\"ERROR\" [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } }
+    },
+    {
+      "title": "Economic Event Rows by Source and Category",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 21 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum by (source, category) (sum_over_time({job_name_from_file=\"economic_events\"} | json | msg=\"economic_events_written\" | unwrap row_count [5m]))", "legendFormat": "{{source}} / {{category}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } }, "overrides": [] }
+    },
+    {
+      "title": "Economic Events Scrape Duration (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 21 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "max_over_time({job_name_from_file=\"economic_events\"} | json | event=\"scrape_end\" | unwrap duration_ms [5m])", "legendFormat": "duration", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "drawStyle": "line", "fillOpacity": 15 } }, "overrides": [] }
+    },
+    {
+      "title": "Fundamentals Container",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 29 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "docker_container_up{service=\"fundamentals\"}", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "0": { "text": "Down", "color": "red" }, "1": { "text": "Running", "color": "green" } } }] } }
+    },
+    {
+      "title": "Fundamentals Rows Collected (24h)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 29 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(sum_over_time({job_name_from_file=\"fundamentals\"} | json | event=\"scrape_end\" | unwrap symbol_count [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" }
+    },
+    {
+      "title": "Fundamentals Failed Runs (24h)",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 29 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "sum(count_over_time({job_name_from_file=\"fundamentals\"} | json | event=\"scrape_failed\" [24h]))", "refId": "A" }],
+      "options": { "colorMode": "value", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } }
+    },
+    {
+      "title": "Fundamentals Rows and Run Duration",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 34 },
+      "datasource": { "type": "loki" },
+      "targets": [
+        { "expr": "sum_over_time({job_name_from_file=\"fundamentals\"} | json | event=\"scrape_end\" | unwrap symbol_count [1h])", "legendFormat": "rows", "refId": "A" },
+        { "expr": "max_over_time({job_name_from_file=\"fundamentals\"} | json | event=\"scrape_end\" | unwrap duration_ms [1h])", "legendFormat": "duration (ms)", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 15 }, "color": { "mode": "palette-classic" } }, "overrides": [] }
+    },
+    {
+      "title": "Fundamentals Errors",
+      "type": "logs",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 34 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "{job_name_from_file=\"fundamentals\"} | json | level=\"ERROR\"", "refId": "A" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "prettifyLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "title": "Recent Market Data Job Logs",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 42 },
+      "datasource": { "type": "loki" },
+      "targets": [{ "expr": "{job_name_from_file=~\"$candle_job|economic_events|fundamentals\"}", "refId": "A" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "prettifyLogMessage": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["tickrake", "market-data", "economic-events", "fundamentals"],
+  "templating": {
+    "list": [
+      {
+        "name": "candle_job",
+        "label": "Candle Job",
+        "type": "query",
+        "datasource": { "type": "loki" },
+        "query": "label_values({job_name_from_file=~\".*candle.*|.*futures_candle.*\"}, job_name_from_file)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "time": { "from": "now-24h", "to": "now" },
+  "timezone": "browser",
+  "title": "Market Data Jobs",
+  "uid": "tickrake-market-data-jobs",
+  "version": 1
+}
