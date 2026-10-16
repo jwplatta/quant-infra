@@ -99,10 +99,3 @@ services:
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/fundamentals.rb
-
-  reconciler:
-    <<: *tickrake-base
-    profiles: [dev, prod, data-ingestion]
-    environment:
-      <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/reconciler.rb
