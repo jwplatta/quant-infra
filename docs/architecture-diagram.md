@@ -32,17 +32,14 @@ flowchart LR
     tickrake --> postgres
     tickrake -. dev .-> sqlite
     tickrake -->|"intraday publisher"| minio
-    tickrake -->|"event archive job"| lakehouse
     localfs --> tractatus
     tractatus -->|"Parquet + Iceberg metadata"| lakehouse
     tractatus -->|"publication ledger"| postgres
     tractatus -. "historical data interface" .-> research
     tractatus -. "historical data interface" .-> trading
     minio -->|"intraday data"| trading
-
     research --> mlflow
     mlflow --> postgres
-
     localfs --> alloy --> loki
     loki --> grafana
     prometheus --> grafana
@@ -75,9 +72,9 @@ flowchart LR
   the configured job/provider. News APIs are not shown as an active Tickrake
   feed unless a job is configured for one.
 - Tickrake has multiple output paths: local Parquet files feed the Tractatus
-  catalog publisher; an intraday publisher writes to MinIO; and a separate
-  event archive job writes directly to the S3 archive. These are distinct from
-  Tractatus's Iceberg catalog publishing flow.
+  catalog publisher, and the intraday publisher writes to MinIO. Tractatus
+  publishes eligible local files to the AWS Iceberg lakehouse; Tickrake does
+  not publish directly to that lakehouse.
 - Alloy ships Tickrake and Tractatus JSONL log files to Loki. Prometheus scrapes
   infrastructure metrics, including Docker service health and host container
   statistics. Grafana dashboards query both.
