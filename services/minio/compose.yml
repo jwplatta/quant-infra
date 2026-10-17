@@ -7,7 +7,7 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
     volumes:
-      - minio_data:/data
+      - /Users/jplatta/minio-data:/data
     restart: unless-stopped
 
   minio_init:
@@ -23,6 +23,3 @@ services:
         echo 'minio_init: bucket ready'
       "
     restart: "no"
-
-volumes:
-  minio_data:
