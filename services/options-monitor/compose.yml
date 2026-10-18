@@ -7,12 +7,13 @@ services:
       - envs/${ENV}.env
     environment:
       MINIO_ENDPOINT: http://minio:9000
-      MINIO_BUCKET: tickrake-intraday
+      MINIO_INTRADAY_BUCKET: tickrake-intraday
+      MINIO_HISTORICAL_BUCKET: tickrake-historical
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
-      S3_BUCKET: tickrake
+      TRACTATUS_CACHE_DIR: /root/.tractatus/cache
     volumes:
-      - ~/.tickrake:/root/.tickrake:ro
+      - ~/.tractatus/cache:/root/.tractatus/cache
       - ~/.aws:/root/.aws:ro
     depends_on:
       - minio
