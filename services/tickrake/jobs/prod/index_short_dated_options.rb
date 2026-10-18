@@ -13,6 +13,6 @@ Tickrake.job "index_short_dated_options" do
   end
 
   options do
-    dte(1..10)
+    dte(2..10)
   end
 end
