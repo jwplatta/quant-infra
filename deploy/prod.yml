@@ -93,13 +93,6 @@ services:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
 
-  option_compaction:
-    volumes:
-      - ./services/tickrake/jobs:/jobs:ro
-      - ~/.tickrake:/root/.tickrake
-      - ~/.schwab_rb:/root/.schwab_rb
-      - ~/.aws:/root/.aws:ro
-
   economic_events:
     depends_on:
       postgres:

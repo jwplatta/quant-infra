@@ -79,15 +79,6 @@ services:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/intraday_publisher.rb
 
-  option_compaction:
-    <<: *tickrake-base
-    profiles: [maintenance]
-    mem_limit: ${COMPACTION_MEMORY_LIMIT:-10g}
-    restart: "no"
-    environment:
-      <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/compact_all_option_samples_for_date.rb
-
   economic_events:
     <<: *tickrake-base
     profiles: [dev, prod, data-ingestion]

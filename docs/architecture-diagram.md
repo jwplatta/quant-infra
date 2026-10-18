@@ -8,7 +8,7 @@ flowchart LR
     schwabrb["schwab_rb<br/>Ruby API client"]
     ibkr["IBKR<br/>market data"]
     otherSources["Other providers<br/>Alpha Vantage · FRED · BLS<br/>SimFin / news APIs where enabled"]
-    tickrake["Tickrake<br/>collect · stream · compact"]
+    tickrake["Tickrake<br/>collect · stream"]
     localfs["Local files<br/>Parquet datasets + JSONL logs"]
     minio["MinIO<br/>dev intraday / published data"]
     tractatus["Tractatus<br/>publish + archive access"]
