@@ -63,13 +63,6 @@ services:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/market_streams.rb
 
-  events_ingestor:
-    <<: *tickrake-base
-    profiles: [prod, data-ingestion]
-    environment:
-      <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/events_ingestor.rb
-
   metadata_sync:
     <<: *tickrake-base
     profiles: [prod, data-ingestion]
@@ -85,16 +78,6 @@ services:
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/intraday_publisher.rb
-
-  historical_publisher:
-    <<: *tickrake-base
-    profiles: [prod]
-    volumes:
-      - ./services/tickrake/jobs:/jobs:ro
-      - ./services/tickrake/config/${ENV}:/config:ro
-    environment:
-      <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/historical_publisher.rb
 
   option_compaction:
     <<: *tickrake-base

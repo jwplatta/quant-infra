@@ -69,7 +69,7 @@ Build commands are available for the dev and production profiles: `make dev-buil
 For a production scraper host without the research, monitoring, MinIO, Options
 Monitor, or intraday-publishing services, run `make prod-scrapers-up`. It
 starts only the configured Tickrake scrapers, `market_streams`,
-`events_ingestor`, `metadata_sync`, and `reconciler`.
+`metadata_sync`, and `reconciler`.
 
 ## Secret scanning
 
@@ -124,7 +124,7 @@ The dev profile builds from `https://github.com/jwplatta/options-monitor.git#mai
 
 ## Tickrake jobs
 
-The production profile runs the stock, ETF, SPX options, equity Level 1/order-book, futures Level 1, batch and streaming candles, economic-events, ingestion, metadata, publishing, and reconciliation jobs. The streaming candle jobs collect `$SPX` through `CHART_EQUITY` and `/ES` through `CHART_FUTURES`. The dev profile intentionally limits this to `futures_candles`, `economic_events`, and `reconciler`.
+The production profile runs the stock, ETF, SPX options, equity Level 1/order-book, futures Level 1, batch and streaming candles, economic-events, metadata, publishing, and reconciliation jobs. The streaming candle jobs collect `$SPX` through `CHART_EQUITY` and `/ES` through `CHART_FUTURES`. The dev profile intentionally limits this to `futures_candles`, `economic_events`, and `reconciler`.
 
 To add a job to dev, place its dev definition under `services/tickrake/jobs/dev/`, add `dev` to its service profile in `services/tickrake/compose.yml`, and override its file path and mounts in `deploy/dev.yml`. See [docs/SETUP.md](docs/SETUP.md) for the complete example.
 

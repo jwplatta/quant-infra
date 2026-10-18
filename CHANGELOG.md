@@ -27,6 +27,9 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Removed the Tickrake `events_ingestor` and `historical_publisher` job
+  registrations and definitions.
+
 - Replaced the normal Promtail log-shipping service with Grafana Alloy while
   retaining Promtail in a separate fallback profile during troubleshooting.
 - Production Tickrake jobs now use the shared PostgreSQL `tickrake` database;

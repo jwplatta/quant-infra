@@ -77,15 +77,6 @@ services:
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
 
-  events_ingestor:
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - ./services/tickrake/jobs:/jobs:ro
-      - ~/.tickrake:/root/.tickrake
-      - ~/.aws:/root/.aws:ro
-
   metadata_sync:
     depends_on:
       postgres:
@@ -101,16 +92,6 @@ services:
     volumes:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
-
-  historical_publisher:
-    depends_on:
-      postgres:
-        condition: service_healthy
-      minio_init:
-        condition: service_completed_successfully
-    volumes:
-      - ~/.tickrake/data:/root/.tickrake/data
-      - ~/.tickrake/logs:/root/.tickrake/logs
 
   option_compaction:
     volumes:
