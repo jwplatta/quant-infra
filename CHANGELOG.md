@@ -9,6 +9,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Added per-dataset raw, MinIO staging/cache, Iceberg Parquet, and raw-to-Parquet metrics to Collection Stats.
+- Added a read-only MinIO inventory exporter for the existing Tickrake staging and Tractatus lakehouse buckets.
 - Expanded production equity, stock-option, and ETF-option symbol lists and added index option roots.
 
 - Daily Schwab fundamentals collection at 15:00 America/Chicago, covering all tracked S&P 500 constituents, production equity and ETF universes, and the imported dividend watchlist.
@@ -26,6 +28,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
   WebSocket connection.
 
 ### Changed
+
+- Removed the redundant Errors panel from Collection Stats; error views remain on the operational dashboards.
 
 - Removed the Tickrake `events_ingestor` and `historical_publisher` job
   registrations and definitions.

@@ -8,7 +8,7 @@ services:
     environment:
       MINIO_ENDPOINT: http://minio:9000
       MINIO_INTRADAY_BUCKET: tickrake-intraday
-      MINIO_HISTORICAL_BUCKET: tickrake-historical
+      MINIO_HISTORICAL_BUCKET: tractatus-lakehouse
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       TRACTATUS_CACHE_DIR: /root/.tractatus/cache

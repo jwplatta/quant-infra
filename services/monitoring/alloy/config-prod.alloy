@@ -50,6 +50,45 @@ loki.process "tickrake" {
   }
 }
 
+local.file_match "tractatus" {
+  path_targets = [{
+    "__path__" = "/var/log/tractatus/catalog.jsonl",
+    "env"      = "prod",
+    "service"  = "tractatus",
+    "job_name_from_file" = "tractatus_publisher",
+  }]
+}
+
+loki.source.file "tractatus" {
+  targets       = local.file_match.tractatus.targets
+  tail_from_end = true
+  forward_to    = [loki.process.tractatus.receiver]
+}
+
+loki.process "tractatus" {
+  forward_to = [loki.write.default.receiver]
+
+  stage.json {
+    expressions = {
+      level = "level",
+      event = "event",
+      ts    = "ts",
+    }
+  }
+
+  stage.labels {
+    values = {
+      level = "level",
+      event = "event",
+    }
+  }
+
+  stage.timestamp {
+    source = "ts"
+    format = "RFC3339Nano"
+  }
+}
+
 loki.write "default" {
   endpoint {
     url = "http://loki:3100/loki/api/v1/push"

@@ -2,6 +2,11 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
+  - job_name: minio_storage
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['storage_metrics_exporter:9105']
+
   - job_name: docker_stats
     scrape_interval: 15s
     static_configs:

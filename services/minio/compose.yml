@@ -20,6 +20,7 @@ services:
         sleep 3 &&
         mc alias set local http://minio:9000 minioadmin minioadmin &&
         mc mb --ignore-existing local/tickrake-intraday &&
-        echo 'minio_init: bucket ready'
+        mc mb --ignore-existing local/tickrake-staging &&
+        echo 'minio_init: buckets ready'
       "
     restart: "no"

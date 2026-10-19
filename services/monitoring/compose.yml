@@ -1,4 +1,18 @@
 services:
+  storage_metrics_exporter:
+    build:
+      context: ./services/monitoring/storage_metrics_exporter
+    profiles: [dev, prod, data-ingestion]
+    environment:
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      STORAGE_METRICS_REFRESH_SECONDS: "86400"
+      STORAGE_METRICS_RETRY_SECONDS: "300"
+    depends_on:
+      - minio
+    restart: unless-stopped
+
   prometheus:
     image: prom/prometheus:v2.53.0
     profiles: [dev, prod, data-ingestion]

@@ -77,6 +77,14 @@ datastores:
     access_key_id: minioadmin
     secret_access_key: minioadmin
     force_path_style: true
+  minio_staging:
+    type: s3_compatible
+    endpoint: http://minio:9000
+    bucket: tickrake-staging
+    region: us-east-1
+    access_key_id: minioadmin
+    secret_access_key: minioadmin
+    force_path_style: true
 storage:
   data_dir: ~/.tickrake/data
 
