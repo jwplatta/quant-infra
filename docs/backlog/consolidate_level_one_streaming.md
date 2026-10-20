@@ -4,48 +4,36 @@ tags: [streaming, schwab, reliability]
 title: Consolidate production market streaming into one managed session
 description: Replace five production stream containers with one managed Schwab WebSocket and dynamically scheduled subscriptions.
 created: 2026-09-21
-updated: 2026-09-21
-status: not-started
+updated: 2026-10-20
+status: in-progress
 priority: high
 source: quant-infra
 ---
 
 # Summary
 
-Production equity and futures Level One collectors, equity order book, and two
-chart streams use separate Schwab stream clients while sharing credentials. A
-stream can become silent without ending its container, and reconnect activity
-can interact poorly with shared token state. Use Tickrake PR #96's consolidated
-stream job to run all five subscriptions on one managed websocket connection.
+The production configuration now uses one `market_streams` service with a
+managed stream session for equity/futures Level One, equity order book, and
+chart subscriptions. Remaining work is to verify the current schedule, writer
+rotation, watchdog/reconnect behavior, and chart flush semantics. Event
+ingestion through the former events ingestor is out of scope because that
+service has been removed; the pending-events-to-MinIO gap is tracked in
+[`complete_data_pipeline_and_collection_operations.md`](complete_data_pipeline_and_collection_operations.md).
 
 ## Requirements
 
-- Merge Tickrake PR #96 and rebuild the production Tickrake image with
-  `schwab_rb >= 1.0.4`.
-- Add one `market_streams` production DSL job containing these subscriptions:
-  `equity_level_one`, `equity_order_book`, `spx_chart_stream`,
-  `futures_level_one`, and `futures_chart_stream`.
-- Preserve the current symbols, service names, market windows, rotation/flush
-  intervals, and subscription names. The names must remain the pending-event
-  writer names so the existing events ingestor continues to process the same
-  file families.
-- Replace the five Compose services with one `market_streams` service; do not
-  change the events ingestor or unrelated Tickrake services.
-- Validate subscription activation/deactivation, writer rotation, chart flush,
-  liveness watchdog, disconnect recovery, and event ingestion before cutover.
-- Resolve or test PR #96's fixed 60-second chart flush behavior against each
-  subscription's configured `flush_interval`.
-- Perform the production cutover only with explicit approval for the required
-  targeted stream-service replacement. Do not restart unrelated Tickrake jobs.
+- Confirm that configured subscriptions, symbols, and session windows match
+  the intended market coverage.
+- Verify subscription activation/deactivation, writer rotation, watchdog
+  recovery, and disconnect/reconnect behavior against the current job.
+- Resolve the chart flush interval mismatch: chart subscriptions configure
+  120 seconds, while the consolidated stream watchdog also flushes chart
+  buffers every 60 seconds. Decide which interval is the contract and test it.
+- Confirm the production deployment uses the consolidated job; do not restart
+  unrelated Tickrake services during any required validation.
 
 ## Dependencies & Resources
 
-- `docs/notes/level_one_stream_watchdog.md` in the Tickrake repository
-- `https://github.com/jwplatta/tickrake/pull/96`
-- `services/tickrake/jobs/prod/equity_level_one.rb`
-- `services/tickrake/jobs/prod/futures_level_one.rb`
-- `services/tickrake/jobs/prod/equity_order_book.rb`
-- `services/tickrake/jobs/prod/spx_chart_stream.rb`
-- `services/tickrake/jobs/prod/futures_chart_stream.rb`
+- `services/tickrake/jobs/prod/market_streams.rb`
 - `services/tickrake/compose.yml`
-- `schwab_rb` stream-client reconnect behavior
+- Tickrake stream runner and chart flush implementation
