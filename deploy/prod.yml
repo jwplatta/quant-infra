@@ -93,6 +93,15 @@ services:
       - ./services/tickrake/jobs:/jobs:ro
       - ~/.tickrake:/root/.tickrake
 
+  # TODO
+  # staging_publisher:
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ./services/tickrake/jobs:/jobs:ro
+  #     - ~/.tickrake:/root/.tickrake
+
   economic_events:
     depends_on:
       postgres:
@@ -115,11 +124,6 @@ services:
       - ./services/monitoring/alloy/config-prod.alloy:/etc/alloy/config.alloy:ro
       - ~/.tickrake/logs:/var/log/tickrake:ro
       - ~/.tractatus/logs:/var/log/tractatus:ro
-  promtail:
-    volumes:
-      - ./services/monitoring/promtail/promtail-prod.yml:/etc/promtail/promtail.yml:ro
-      - ~/.tickrake/logs:/var/log/tickrake:ro
-      - promtail_positions:/positions
 
   grafana:
     ports:
