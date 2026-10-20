@@ -4,3 +4,4 @@ envs/dev.env
 /tmp
 .claude
 .codex
+/docs/scratch
