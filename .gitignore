@@ -5,3 +5,4 @@ envs/dev.env
 .claude
 .codex
 /docs/scratch
+*.pem
