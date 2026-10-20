@@ -51,7 +51,7 @@ services:
 
   futures_candles:
     <<: *tickrake-base
-    profiles: [dev, prod, data-ingestion]
+    profiles: [prod, data-ingestion]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/futures_candles.rb
@@ -79,9 +79,18 @@ services:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/intraday_publisher.rb
 
+  staging_publisher:
+    <<: *tickrake-base
+    profiles: [prod, data-ingestion]
+    depends_on:
+      - minio
+    environment:
+      <<: *tickrake-environment
+      TICKRAKE_JOB_FILE: /jobs/prod/staging_publisher.rb
+
   economic_events:
     <<: *tickrake-base
-    profiles: [dev, prod, data-ingestion]
+    profiles: [prod, data-ingestion]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/economic_events.rb

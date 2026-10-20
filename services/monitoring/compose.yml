@@ -44,14 +44,6 @@ services:
       - alloy_data:/var/lib/alloy/data
     restart: unless-stopped
 
-  promtail:
-    image: grafana/promtail:3.1.0
-    profiles: [promtail-fallback]
-    command: -config.file=/etc/promtail/promtail.yml
-    depends_on:
-      - loki
-    restart: unless-stopped
-
   grafana:
     image: grafana/grafana:11.1.0
     profiles: [dev, prod]
