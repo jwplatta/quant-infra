@@ -1,135 +1,103 @@
 # Quant Infra
 
-Docker Compose infrastructure for data collection, local research services, and operational visibility. It is the runtime environment around the research workflow.
+Docker Compose runtime and integration wiring for the local quantitative research platform. This repository configures collection services, storage, research infrastructure, publication, and observability; the applications and data clients remain in their own repositories.
 
-## What runs here
+## System overview
 
-- **Tickrake jobs** collect and publish market data. Each job runs in its own container.
-- **PostgreSQL** provides separate `tickrake`, `mlflow`, and `grafana` databases.
-- **MLflow** records experiments and model artifacts for research projects.
-- **MinIO** is a local S3-compatible store for intraday data.
-- **Grafana, Prometheus, Loki, Promtail, and the host Docker stats exporter** provide dashboards, metrics, and logs for the running stack.
-- **Options Monitor** is the intraday trading dashboard. It reads Tickrake data through the local runtime interfaces.
+- **Tickrake** collects market and reference data from independent providers, processes streams, compacts completed datasets, and tracks collection state. Schwab integrations use `schwab_rb`; IBKR and other providers connect through their own adapters.
+- **Tractatus** reads completed Tickrake data from MinIO staging, normalizes it, and appends it through the AWS Glue catalog to Iceberg tables. Its PostgreSQL ledger records publication state.
+- **AWS S3 with Glue/Iceberg** is the durable historical lakehouse and catalog boundary. The Tractatus ledger, S3 object presence, and Iceberg snapshot membership are distinct facts and must be checked separately during recovery.
+- **MinIO** provides the local `tickrake-intraday`, `tickrake-staging`, and `tractatus-lakehouse` buckets. Staging is a publication input; the latter bucket is a local Tractatus cache. Neither replaces the authoritative Glue/Iceberg lakehouse.
+- **PostgreSQL** backs Tickrake state, the Tractatus publication ledger, MLflow metadata, and Grafana metadata in the configured production stack.
+- **MLflow** tracks research experiments and artifacts. **Grafana, Prometheus, Loki, Alloy, and the Docker/MinIO metrics exporters** provide operational visibility.
+- **Options Monitor** is a separate Streamlit consumer. Its Compose definition is dev-profiled and configured for MinIO data; verify the active consumer path before assuming historical lakehouse integration is live.
 
-Research repositories consume the published data and use MLflow; they do not live in this repository.
+Research applications and strategy code live outside this repository. See [docs/architecture.md](docs/architecture.md) for the system architecture and [docs/architecture-diagram.md](docs/architecture-diagram.md) for its diagram.
 
-## Profiles
+## Compose profiles
 
-| Profile | Command | Starts |
+The Makefile currently exposes research, data-ingestion, and production commands. There is no `make dev-*` target or `deploy/dev.yml` overlay in the current checkout. Research and data-ingestion are profiles of the `quant-infra-prod` Compose project, so they share its project identity, named volumes, and configured host ports with production. Inspect the effective targets before switching profiles.
+
+| Profile | Commands | Starts |
 | --- | --- | --- |
-| Dev | `make dev-up` | The dev infrastructure plus `futures_candles` and `reconciler`, using local Tickrake source and isolated dev state. |
-| Research | `make research-up` | Only PostgreSQL and MLflow. Use this for experiment tracking without data collection or monitoring. |
-| Data ingestion | `make data-ingestion-up` | Production Tickrake jobs, MinIO, and collection observability; excludes PostgreSQL, MLflow, Grafana, and Options Monitor. |
-| Production | `make prod-up` | The complete stack: infrastructure, observability, and all production Tickrake jobs. |
+| Research | `make research-up`, `make research-ps` | PostgreSQL and MLflow, without collection or monitoring services. |
+| Data ingestion | `make data-ingestion-up`, `make data-ingestion-ps` | PostgreSQL, Tickrake collection, MinIO, and collection observability; no MLflow, Grafana, or Options Monitor. |
+| Production | `make prod-up`, `make prod-ps` | The full configured production stack, including collection, MinIO, Tractatus publisher, research services, and observability. Treat it as live. |
 
-`research` uses the production project, volumes, and ports (Postgres `5432`, MLflow `5000`). Stop the active profile before switching modes: `make research-down` or `make prod-down`.
+`make prod-scrapers-up` starts only the configured scraper services with `--no-deps`; it does not bring up the complete production stack. Avoid broad profile switching on a live host. The repository guidance in [AGENTS.md](AGENTS.md) describes operational boundaries.
 
 ## Quick start
 
-Prerequisites:
+Prerequisites: Docker Desktop with Compose v2 and the user-level credentials needed by the services you intend to run.
 
-- Docker Desktop with Compose v2
-- A local Tickrake checkout at `~/repos/tickrake` for the dev profile
-- `~/.schwab_rb/` and `~/.aws/` credentials for Tickrake jobs
-
-Create the ignored environment files once:
+Create ignored environment files as needed:
 
 ```sh
-cp envs/example.env envs/dev.env
 cp envs/example.env envs/prod.env
 cp envs/secrets.example.env envs/secrets.env
 ```
 
-Start the smallest research stack:
+Start the research services:
 
 ```sh
 make research-up
 make research-ps
 ```
 
-Start development or the full production stack:
+Production is live and may start data collection and scheduled publishing. Review the Compose configuration and setup guide before running `make prod-up`. For setup, database access, and publisher commands, see [docs/SETUP.md](docs/SETUP.md).
+
+## Data publication flow
+
+Tickrake's production staging job is scheduled for weekdays at 16:05 and uploads supported completed data files to the `tickrake-staging` MinIO bucket. Tractatus is scheduled at 16:15 America/Chicago every calendar day. It reads staging, normalizes eligible files, appends them through Glue/Iceberg, updates its PostgreSQL ledger, and maintains the `tractatus-lakehouse` MinIO cache. A manual publication can be run with optional date bounds, for example:
 
 ```sh
-make dev-build && make dev-up
-make prod-build && make prod-up
+make prod-publish AFTER=2026-10-01 BEFORE=2026-10-02 LIMIT=20
 ```
+
+The bounds are inclusive `AFTER` and exclusive `BEFORE`. The Tractatus publisher command and current configuration are documented in [docs/SETUP.md](docs/SETUP.md). Tickrake's streaming pending-event spool is not currently scanned by the staging publisher, so a stream write or local spool file alone does not establish that it was staged or published.
+
+The separate intraday publication path uses MinIO as configured by Tickrake. Do not infer historical Glue/Iceberg membership from MinIO objects or ledger rows alone.
 
 ## Common commands
 
-| Purpose | Dev | Research | Data ingestion | Production |
-| --- | --- | --- | --- | --- |
-| Start | `make dev-up` | `make research-up` | `make data-ingestion-up` | `make prod-up` |
-| Stop | `make dev-down` | `make research-down` | `make data-ingestion-down` | `make prod-down` |
-| Status | `make dev-ps` | `make research-ps` | `make data-ingestion-ps` | `make prod-ps` |
-| Logs | `make dev-logs` | `make research-logs` | `make data-ingestion-logs` | `make prod-logs` |
-| Restart | `make dev-restart` | `make research-restart` | `make data-ingestion-restart` | `make prod-restart` |
+| Purpose | Research | Data ingestion | Production |
+| --- | --- | --- | --- |
+| Start | `make research-up` | `make data-ingestion-up` | `make prod-up` |
+| Stop profile | `make research-down` | `make data-ingestion-down` | `make prod-down` |
+| Status | `make research-ps` | `make data-ingestion-ps` | `make prod-ps` |
+| Logs | `make research-logs` | `make data-ingestion-logs` | `make prod-logs` |
+| Restart | `make research-restart` | `make data-ingestion-restart` | `make prod-restart` |
 
-Build commands are available for the dev and production profiles: `make dev-build`, `make prod-build`, and their `-no-cache` variants. Start one Tickrake service explicitly with `make dev-run JOB=futures_candles` or `make prod-run JOB=0dte_options`.
-
-For a production scraper host without the research, monitoring, MinIO, Options
-Monitor, or intraday-publishing services, run `make prod-scrapers-up`. It
-starts only the configured Tickrake scrapers, `market_streams`,
-`metadata_sync`, and `reconciler`.
+Other targeted commands include `make prod-run JOB=<service>`, `make prod-publisher-logs`, and `make prod-catalog-db-setup`. Check the Makefile before use; service availability varies by Compose profile.
 
 ## Secret scanning
 
-Install the repository hooks once after installing [Gitleaks](https://github.com/gitleaks/gitleaks):
+Install the repository hooks after installing [Gitleaks](https://github.com/gitleaks/gitleaks):
 
 ```sh
 brew install gitleaks
 make hooks-install
 ```
 
-The pre-commit hook scans staged changes. The pre-push hook scans Git history, blocking a push if it finds a secret. Run `make secrets-check` at any time for the same full scan.
+The pre-commit hook scans staged changes. The pre-push hook scans Git history. Run `make secrets-check` for a full scan.
 
-## Layout
+## Repository layout
 
 ```text
 services/
-  tickrake/       Tickrake image configuration, versioned dev/prod config and universes, and job definitions
-  postgres/       PostgreSQL service and database initialization
-  mlflow/         MLflow image and server configuration
-  minio/          Local S3-compatible storage
-  monitoring/     Grafana, Prometheus, Loki, and Promtail configuration
+  tickrake/             Tickrake Compose services, jobs, config, and universes
+  tractatus/            Tractatus catalog publisher Compose wiring and scheduler
+  postgres/             PostgreSQL service and database initialization
+  mlflow/               MLflow server configuration
+  minio/                Local S3-compatible storage and bucket initialization
+  monitoring/           Grafana, Prometheus, Loki, Alloy, and storage metrics
   docker-stats-exporter/ Host Docker container-metrics exporter
-  options-monitor/ Intraday trading dashboard Compose definition
+  options-monitor/      Options Monitor Compose definition
 deploy/
-  dev.yml         Dev ports, local Tickrake build, and dev home/config mounts
-  prod.yml        Production ports, remote Tickrake build, and prod mounts
-envs/              Ignored local environment and secrets files; tracked examples
-scripts/           One-off maintenance and validation scripts
-docs/              Setup notes and architecture diagram
+  prod.yml              Production mounts, build settings, and port mappings
+envs/                   Ignored local environment and secrets files; tracked examples
+scripts/                One-off maintenance and validation scripts
+docs/                   Setup, architecture, plans, notes, and backlog
 ```
 
-Each service owns its base Compose definition. `deploy/dev.yml` and `deploy/prod.yml` are overlays for environment-specific ports, volumes, and build contexts; the Makefile combines them with the appropriate Compose profile.
-
-## Service access
-
-| Service | Dev | Production / Research |
-| --- | --- | --- |
-| PostgreSQL | `localhost:5433` | `localhost:5432` |
-| MLflow | `http://localhost:5001` | `http://localhost:5005` |
-| Options Monitor | `http://localhost:8504` | `http://localhost:8503` |
-| Grafana | `http://localhost:3001` | `http://localhost:3000` |
-| MinIO API | `localhost:9002` | `localhost:9000` |
-| MinIO console | `http://localhost:9003` | `http://localhost:9001` |
-
-Grafana and MinIO are not part of the research profile. Production MLflow uses port `5005` because macOS Control Center reserves port `5000` on this machine.
-
-## Options Monitor
-
-Options Monitor is the user-facing intraday trading dashboard. It is currently enabled only in dev and depends on MinIO. It reads the `tickrake-intraday` bucket from MinIO and has read-only access to the matching Tickrake home and AWS credentials.
-
-The dev profile builds from `https://github.com/jwplatta/options-monitor.git#main` and is available on port `8504`. The dashboard should rely on its published-data interfaces rather than assume Tickrake's on-disk storage layout is a permanent contract.
-
-## Tickrake jobs
-
-The production profile runs the stock, ETF, SPX options, equity Level 1/order-book, futures Level 1, batch and streaming candles, economic-events, metadata, publishing, and reconciliation jobs. The streaming candle jobs collect `$SPX` through `CHART_EQUITY` and `/ES` through `CHART_FUTURES`. The dev profile intentionally limits this to `futures_candles`, `economic_events`, and `reconciler`.
-
-To add a job to dev, place its dev definition under `services/tickrake/jobs/dev/`, add `dev` to its service profile in `services/tickrake/compose.yml`, and override its file path and mounts in `deploy/dev.yml`. See [docs/SETUP.md](docs/SETUP.md) for the complete example.
-
-## Data and operational boundaries
-
-Tickrake publishes durable market-data outputs; this repository supplies its runtime dependencies and observability. MLflow records research metadata and artifacts. The Tickrake settings and universes are versioned in `services/tickrake/config/prod/` and `services/tickrake/config/dev/`, then mounted read-only at `/config/tickrake.yml` for each job. Keep credentials in the ignored `envs/*.env` files and user-level credential directories, never in Compose files or committed configuration.
-
-For environment details, database access, and the full Compose composition, see [docs/SETUP.md](docs/SETUP.md). The system relationships are shown in [docs/architecture-diagram.md](docs/architecture-diagram.md).
+Each service has a base Compose definition under `services/`; `deploy/prod.yml` supplies production-specific settings. The Makefile combines them with the selected Compose profile.
