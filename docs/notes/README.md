@@ -12,6 +12,7 @@ This directory is for operational evidence, unresolved findings, research inputs
 | [tickrake_streaming_staging_path.md](tickrake_streaming_staging_path.md) | Unresolved publication gap for the pending-events spool. |
 | [ec2_production_scrapers.md](ec2_production_scrapers.md) | Historical EC2 contingency summary; local Compose remains primary. |
 | [tickrake_postgres_cutover_20261014.md](tickrake_postgres_cutover_20261014.md) | Cutover evidence and imported row counts. See ADR 0002. |
+| [production_options_table_reset.md](production_options_table_reset.md) | Historical evidence for the production options Iceberg table reset. |
 | [docker_stats_exporter.md](docker_stats_exporter.md) | Host exporter operations. See ADR 0004 for the design decision. |
 | [tickrake_staging_publisher_job.md](tickrake_staging_publisher_job.md) | Staging schedule and CLI operations. See ADR 0005. |
 

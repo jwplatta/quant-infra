@@ -43,4 +43,3 @@ Tickrake startup does not inspect or import SQLite state.
 - `services/tickrake/compose.yml`
 - `services/postgres/compose.yml` and `services/postgres/init/`
 - `deploy/prod.yml`, `envs/secrets.example.env`, and `docs/SETUP.md`
-- `docs/plans/move_tickrake_production_to_postgres.md`

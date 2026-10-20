@@ -44,8 +44,8 @@ original 4–5 PM Central window had passed.
 - Validate both Alloy configs and the effective production Compose config
   before cutover. Keep Loki, Grafana dashboards, datasource, and existing
   LogQL label selectors compatible.
-- The production rollout and its verification are documented in
-  `docs/plans/promtail_to_alloy.md`.
+- The accepted shipping decision is recorded in
+  `docs/adr/0003-alloy-log-shipping.md`.
 
 ## Dependencies & Resources
 
