@@ -3,16 +3,16 @@
 
 require "tickrake"
 
-Tickrake.job "0-1dte_options" do
+Tickrake.job "0-4dte_options" do
   provider :schwab
   universe "index_symbols"
 
   schedule do
-    every 20.seconds
-    weekdays from: "08:30", to: "15:00"
+    every 30.seconds
+    weekdays from: "06:30", to: "15:15"
   end
 
   options do
-    dte(0..1)
+    dte(0..4)
   end
 end

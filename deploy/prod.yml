@@ -27,7 +27,7 @@ services:
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
 
-  0-1dte_options:
+  0-4dte_options:
     depends_on:
       postgres:
         condition: service_healthy
@@ -133,9 +133,9 @@ services:
     ports:
       - "5432:5432"
 
-  mlflow:
-    ports:
-      - "5005:5000"
+  # mlflow:
+  #   ports:
+  #     - "5005:5000"
 
   minio:
     ports:

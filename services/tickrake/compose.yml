@@ -28,12 +28,12 @@ services:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/etf_options.rb
 
-  0-1dte_options:
+  0-4dte_options:
     <<: *tickrake-base
     profiles: [prod, data-ingestion]
     environment:
       <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/0-1dte_options.rb
+      TICKRAKE_JOB_FILE: /jobs/prod/0-4dte_options.rb
 
   index_short_dated_options:
     <<: *tickrake-base
@@ -79,14 +79,14 @@ services:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/intraday_publisher.rb
 
-  staging_publisher:
-    <<: *tickrake-base
-    profiles: [prod, data-ingestion]
-    depends_on:
-      - minio
-    environment:
-      <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/staging_publisher.rb
+  # staging_publisher:
+  #   <<: *tickrake-base
+  #   profiles: [prod, data-ingestion]
+  #   depends_on:
+  #     - minio
+  #   environment:
+  #     <<: *tickrake-environment
+  #     TICKRAKE_JOB_FILE: /jobs/prod/staging_publisher.rb
 
   economic_events:
     <<: *tickrake-base
