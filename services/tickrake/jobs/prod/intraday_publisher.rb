@@ -6,7 +6,7 @@ require "tickrake"
 Tickrake.job "intraday_publisher" do
   schedule do
     every 60.seconds
-    weekdays from: "08:30", to: "15:30"
+    weekdays from: "06:30", to: "15:15"
   end
 
   intraday_publish do
