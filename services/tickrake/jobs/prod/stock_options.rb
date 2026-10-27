@@ -8,8 +8,8 @@ Tickrake.job "stock_options" do
   universe "stock_option_symbols"
 
   schedule do
-    every 30.minutes
-    weekdays from: "08:35", to: "15:05"
+    every 5.minutes
+    weekdays from: "08:34", to: "15:04"
   end
 
   options do

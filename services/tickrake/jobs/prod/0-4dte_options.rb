@@ -9,7 +9,8 @@ Tickrake.job "0-4dte_options" do
 
   schedule do
     every 30.seconds
-    weekdays from: "06:30", to: "15:15"
+    weekdays from: "06:30", to: "08:25"
+    weekdays from: "08:30", to: "15:15"
   end
 
   options do

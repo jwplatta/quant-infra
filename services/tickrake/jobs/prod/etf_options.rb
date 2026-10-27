@@ -8,8 +8,8 @@ Tickrake.job "etf_options" do
   universe "etf_option_symbols"
 
   schedule do
-    every 10.minutes
-    weekdays from: "08:40", to: "15:00"
+    every 5.minutes
+    weekdays from: "08:33", to: "15:10"
   end
 
   options do

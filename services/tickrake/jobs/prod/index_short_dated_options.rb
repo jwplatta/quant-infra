@@ -8,11 +8,12 @@ Tickrake.job "index_short_dated_options" do
   universe "index_symbols"
 
   schedule do
-    every 2.minutes
-    weekdays from: "08:30", to: "15:05"
+    every 5.minutes
+    weekdays from: "06:31", to: "8:25"
+    weekdays from: "08:31", to: "15:15"
   end
 
   options do
-    dte(2..10)
+    dte(5..10)
   end
 end
