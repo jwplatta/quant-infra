@@ -1,6 +1,7 @@
 envs/secrets.env
 envs/prod.env
 envs/dev.env
+envs/*.env
 /tmp
 .claude
 .codex
