@@ -12,16 +12,12 @@ Tickrake.job "market_streams" do
     level_one "equity_level_one" do
       universe "equity_symbols"
       services [:level_one_equities]
-      rotation_size_mb 512
-      rotation_interval 3600
       schedule { weekdays from: "08:30", to: "15:00" }
     end
 
     order_book "equity_order_book" do
       universe "equity_symbols"
       services [:NYSE_BOOK, :NASDAQ_BOOK]
-      rotation_size_mb 512
-      rotation_interval 3600
       schedule { weekdays from: "08:30", to: "15:00" }
     end
 
@@ -35,8 +31,6 @@ Tickrake.job "market_streams" do
     level_one "futures_level_one" do
       symbols "/ES", "/NQ", "/CL", "/ZB", "/ZN", "/6E", "/ZC", "/ZS", "/ZW", "/NG", "/GC", "/SI", "/RTY", "/YM", "/HG"
       services [:level_one_futures]
-      rotation_size_mb 512
-      rotation_interval 3600
       schedule do
         days %w[sun mon tue wed thu], from: "17:00", to: "23:59"
         days %w[mon tue wed thu fri], from: "00:00", to: "16:00"
