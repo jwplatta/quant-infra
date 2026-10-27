@@ -2,6 +2,7 @@ x-tickrake: &tickrake-base
   image: tickrake:latest
   env_file:
     - envs/secrets.env
+    - envs/tickrake.env
     - envs/${ENV}.env
   volumes:
     - ./services/tickrake/jobs:/jobs:ro
