@@ -1,103 +1,52 @@
 ---
 type: chore
-tags: [data-pipeline, tickrake, tractatus, options, candles, observability]
-title: Complete collection-to-lakehouse operations and observability
-description: Add a manual two-stage publisher workflow, improve options coverage and quality tracking, investigate candle artifacts, and align dashboards with the current system.
+tags: [data-pipeline, tickrake, tractatus]
+title: Implement one-off Tickrake-to-lakehouse publication
+description: Provide a manual, date-scoped container command that stages, publishes, verifies, and purges one dataset.
 created: 2026-10-19
-updated: 2026-10-20
-status: in-progress
+updated: 2026-10-28
+status: complete
 priority: high
 source: quant-infra
 ---
 
 # Summary
 
-Complete the operational path from Tickrake collection through the MinIO staging bucket to the Tractatus Iceberg lakehouse and MinIO cache. Improve options-chain collection coverage and sample-quality visibility, document how candle files are produced and compacted, remove legacy objects from the Tickrake AWS S3 bucket, and bring the quant-infra dashboards in line with the current services and data contracts.
+Implement a simple, manual path from local Tickrake files through the
+`tickrake-staging` MinIO bucket to the Tractatus Iceberg lakehouse and
+`tractatus-lakehouse` cache. Run one dataset and sample date at a time. Keep
+local Tickrake files and leave scheduling for later.
 
-## Progress
+## Completed implementation
 
-- A date-scoped two-stage publisher script and a dry-run-first, monthly options
-  S3 cleanup script have been drafted. The publisher has not been run against
-  production data, and the cleanup script covers options by month rather than
-  inventorying the full legacy bucket.
-- The storage metrics exporter and Collection Stats panels are implemented.
-  Live query verification across all dashboards remains outstanding.
-- The production fundamentals job and extended-hours candidate note exist;
-  the requested extended-hours schedule and a separate high-activity schedule
-  are not configured.
-- No durable degraded-sample status and reason is currently recorded for
-  option-chain quality failures.
-- The candle path still needs a current end-to-end trace. Existing Tickrake
-  candle-compaction notes describe an older reconciler/archive design.
+- `services/publish-lakehouse/` contains a one-off CLI image, a host runner,
+  and a shared publication script. The image builds Tickrake and Tractatus
+  from their remote `main` branches when rebuilt; it is not a Compose service.
+- `make publish-options-day`, `make publish-level-one-day`, and
+  `make publish-order-book-day` select the dataset. `DATE=YYYY-MM-DD` selects a
+  sample date; without it, the script uses today's America/Chicago date after
+  that date has closed in UTC.
+- For the selected date and dataset, the script runs Tickrake
+  `publish-staging --no-delete`, Tractatus `catalog discover`, and Tractatus
+  `catalog publish --cache`. Level One covers both the equities and futures
+  tables.
+- Before remote purge, it requires matching Tickrake scan/upload counts,
+  matching Tractatus discovery counts, zero reported publication errors, and
+  date/type ledger rows marked committed and cached without errors. These are
+  count and state checks, not a file-identity comparison.
+- On a successful check, the script runs Tickrake `purge-staging --remote` for
+  that dataset and date. It never purges local Tickrake files. Progress,
+  failures, and success are logged under `tmp/logs/`.
 
-The remaining requirements below are still open. Split this item into focused
-backlog entries as each workstream is taken on.
+## Verification boundary
 
-## Requirements
+Shell syntax, Make command construction, and Docker build wiring were checked
+without running a live publication or purge. Completion here means the manual
+workflow is implemented; a successful end-to-end production run has not been
+established by these checks. A failure during remote purge may leave staging
+partly deleted and requires investigation before retrying.
 
-1. Add a script for manually publishing data through both CLIs in sequence:
-   - Run Tickrake's `publish-staging` command for a selected dataset or set of
-     datasets, with a bounded batch-size option.
-   - After staging succeeds, run Tractatus `catalog publish` with supported
-     table, provider, date-range, and file-limit filters.
-   - Fail fast if either stage fails, report each stage's counts and errors,
-     and make the staging-to-lakehouse handoff clear.
-   - Preserve local Tickrake files by default; deletion after staging upload
-     must require an explicit script option.
-2. Clean up the legacy Tickrake AWS S3 bucket (`tickrake`). Record a dry-run
-   inventory of object counts and bytes, confirm the target prefixes, then
-   delete its data objects. Preserve the bucket itself and the MinIO buckets
-   `tickrake-intraday`, `tickrake-staging`, and `tractatus-lakehouse`.
-3. Update options scrape jobs for the extended-hours ticker group in
-   `docs/notes/schwab_ext_hrs_options.md`. Use timezone-aware schedules for
-   the noted 7:30–9:25 AM and 4:00–4:15 PM Eastern windows, and keep the symbol
-   membership explicit and maintainable.
-4. Define a separate high-trading-activity underlying group and scrape option
-   chains more frequently for it during the intended sessions. Document the
-   selection basis and schedule, and ensure the combined requests respect
-   Tickrake's provider rate limiter and configured concurrency.
-5. Define and implement option-chain sample validation either at Tickrake
-   scrape time or during Tractatus processing. Preserve the source sample,
-   record a boolean degraded-sample status and reason when validation fails,
-   and make that status available to downstream users and logs. Cover the
-   chosen validation rules with focused tests.
-6. Trace the candle path end to end: scrape job and frequency, local file
-   layout, write and rotation behavior, structured logs, conversion or
-   compaction into Parquet, and resulting file sizes. Document the findings
-   and recommend whether the current small per-day Parquet files should be
-   consolidated or handled differently.
-7. Audit all Grafana dashboards against the current Tickrake jobs, Tractatus
-   events, MinIO buckets, and metric labels. Update stale queries and panels,
-   then verify each changed panel against live Loki or Prometheus data and
-   record any remaining upstream telemetry gaps.
+## Runbook
 
-## Acceptance Criteria
-
-- A bounded manual run can publish selected data from Tickrake to
-  `tickrake-staging` and then through Tractatus to the lakehouse and
-  `tractatus-lakehouse` cache; failures and per-stage results are visible, and
-  local deletion is opt-in.
-- The legacy Tickrake AWS bucket's data objects are removed after the target
-  inventory is recorded, without modifying the three active MinIO buckets.
-- Extended-hours and high-activity option schedules are explicit, timezone
-  aware, and rate-limit compatible.
-- Option samples carry a durable degraded status and reason when they fail the
-  agreed validation checks; raw source samples remain available.
-- The candle write and Parquet paths, log events, and small-file behavior are
-  documented with an evidence-based recommendation.
-- Dashboards show current pipeline activity and storage metrics from their
-  actual sources, with known telemetry gaps documented.
-
-## Dependencies & Resources
-
-- `docs/notes/tickrake_staging_publisher_job.md`: Tickrake staging CLI,
-  datastore, and deletion behavior.
-- `docs/notes/schwab_ext_hrs_options.md`: extended-hours ticker group and
-  session windows.
-- `docs/plans/collection_stats_storage_volume.md`: Collection Stats metrics,
-  data-type mapping, and MinIO inventory design.
-- Tickrake CLI: `publish-staging` and existing option scrape jobs/configuration.
-- Tractatus CLI: `catalog publish`, normalization, Iceberg commit, and cache
-  behavior.
-- `services/monitoring/grafana/provisioning/dashboards/`: dashboards to audit
-  against current structured logs and Prometheus metrics.
+See [one-off daily publication](../notes/one-off-daily-publication.md) for the
+current commands, environment files, mounts, and failure behavior.
