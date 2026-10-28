@@ -10,11 +10,13 @@ universes:
     - symbol: $RUT
       option_roots: [RUT, RUTW]
     - symbol: $XSP
+      option_roots: [XSP]
     - symbol: $VIX
       option_roots: [VIX, VIXW]
     - symbol: $DJX
       option_roots: [DJX, DJXW]
-
+    - symbol: GLD
+    - symbol: XLF
 
   stock_option_symbols:
     file: universes/stock_option_symbols.yml
@@ -31,7 +33,7 @@ universes:
   eod_candle_symbols:
     - symbol: $SPX
     - symbol: $TNX
-    - symbol: XSP
+    - symbol: $XSP
     - symbol: SPY
     - symbol: XLB
     - symbol: XLK
