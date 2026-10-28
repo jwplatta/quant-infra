@@ -25,26 +25,40 @@
       "type": "timeseries",
       "gridPos": { "h": 5, "w": 9, "x": 15, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [{ "expr": "docker_container_memory_usage_bytes{service=\"market_streams\"}", "legendFormat": "usage", "refId": "A" }],
+      "targets": [{ "expr": "docker_container_memory_working_set_bytes{service=\"market_streams\"}", "legendFormat": "working set", "refId": "A" }],
       "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "drawStyle": "line", "fillOpacity": 10 } } }
     },
     {
-      "title": "Raw Events per Rotation by Stream",
-      "description": "Level One and order-book streams rotate raw event files every five minutes.",
+      "title": "Events Collected by Data Type",
+      "description": "Five-minute totals from structured event and chart-bar write deltas.",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
       "datasource": { "type": "loki" },
-      "targets": [{ "expr": "sum by (subscription) (sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"file_rotated\" | regexp \"\\\"file\\\":\\\"(?P<subscription>[^\\\"]+)_[0-9]{8}T[0-9]{6}Z\\\\.ndjson\\\"\" | unwrap event_count [5m]))", "legendFormat": "{{subscription}}", "refId": "A" }],
-      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } } }
+      "targets": [{ "expr": "sum by (dataset_type) (sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | unwrap delta_events [5m]))", "legendFormat": "{{dataset_type}}", "refId": "A" }],
+      "fieldConfig": {
+        "defaults": { "unit": "short", "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "fixed", "fixedColor": "#8E8E8E" } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "level_one" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#5794F2" } }] },
+          { "matcher": { "id": "byName", "options": "order_book" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#FF9830" } }] },
+          { "matcher": { "id": "byName", "options": "chart_stream" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#73BF69" } }] }
+        ]
+      }
     },
     {
-      "title": "Chart Bars Flushed by Stream",
-      "description": "CHART_EQUITY and CHART_FUTURES flush independently inside the shared connection.",
+      "title": "Bytes Written by Data Type",
+      "description": "Five-minute totals of NDJSON event bytes and chart CSV bytes appended.",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
       "datasource": { "type": "loki" },
-      "targets": [{ "expr": "sum by (subscription) (sum_over_time({job_name_from_file=\"market_streams\"} | json | regexp `\\[stream:market_streams:(?P<subscription>[^\\]]+)\\] Flushed (?P<bar_count>\\d+) bar` | unwrap bar_count [5m]))", "legendFormat": "{{subscription}}", "refId": "A" }],
-      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } } }
+      "targets": [{ "expr": "sum by (dataset_type) (sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | unwrap delta_bytes [5m]))", "legendFormat": "{{dataset_type}}", "refId": "A" }],
+      "fieldConfig": {
+        "defaults": { "unit": "bytes", "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" } }, "color": { "mode": "fixed", "fixedColor": "#8E8E8E" } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "level_one" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#5794F2" } }] },
+          { "matcher": { "id": "byName", "options": "order_book" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#FF9830" } }] },
+          { "matcher": { "id": "byName", "options": "chart_stream" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#73BF69" } }] }
+        ]
+      }
     },
     {
       "title": "Subscription and Connection Lifecycle",
@@ -83,5 +97,5 @@
   "timezone": "browser",
   "title": "Market Data Streams",
   "uid": "tickrake-streaming",
-  "version": 2
+  "version": 3
 }

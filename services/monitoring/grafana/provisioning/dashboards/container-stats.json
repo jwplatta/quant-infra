@@ -3,13 +3,13 @@
   "graphTooltip": 1,
   "panels": [
     {
-      "title": "Container Memory Usage",
+      "title": "Container Memory Working Set (Docker stats)",
       "type": "timeseries",
       "gridPos": { "h": 9, "w": 12, "x": 0, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "docker_container_memory_usage_bytes{service=~\"$service\"}",
+          "expr": "docker_container_memory_working_set_bytes{service=~\"$service\"}",
           "legendFormat": "{{service}}",
           "refId": "A"
         }
@@ -93,5 +93,5 @@
   "timezone": "browser",
   "title": "Container Stats",
   "uid": "container-stats",
-  "version": 1
+  "version": 2
 }

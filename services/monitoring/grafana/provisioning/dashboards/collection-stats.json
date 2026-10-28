@@ -4,7 +4,7 @@
   "panels": [
     {
       "title": "Totals / Raw Written",
-      "description": "Sum of Tickrake byte_count events over the selected time range.",
+      "description": "Sum of batch byte counts and streaming Level One, order book, and chart stream byte deltas over the selected time range.",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -17,7 +17,7 @@
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | unwrap byte_count [$__range]))",
+          "expr": "(sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | unwrap byte_count [$__range])) or vector(0)) + (sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=~\"level_one|order_book|chart_stream\" | unwrap delta_bytes [$__range])) or vector(0))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -458,7 +458,7 @@
     },
     {
       "title": "Level One / Raw Written",
-      "description": "Sum of Tickrake byte_count events over the selected time range.",
+      "description": "Batch byte counts and streaming Level One byte deltas over the selected time range.",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -471,7 +471,7 @@
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"level_one\" | unwrap byte_count [$__range]))",
+          "expr": "(sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"level_one\" | unwrap byte_count [$__range])) or vector(0)) + (sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=\"level_one\" | unwrap delta_bytes [$__range])) or vector(0))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -685,7 +685,7 @@
     },
     {
       "title": "Order Book / Raw Written",
-      "description": "Sum of Tickrake byte_count events over the selected time range.",
+      "description": "Sum of streaming order book byte deltas over the selected time range.",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -698,7 +698,7 @@
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"order_book\" | unwrap byte_count [$__range]))",
+          "expr": "sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=\"order_book\" | unwrap delta_bytes [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -912,7 +912,7 @@
     },
     {
       "title": "Candles / Raw Written",
-      "description": "Sum of Tickrake byte_count events over the selected time range.",
+      "description": "Batch candle byte counts and chart stream byte deltas over the selected time range.",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -925,7 +925,7 @@
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"candles\" | unwrap byte_count [$__range]))",
+          "expr": "(sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"candles\" | unwrap byte_count [$__range])) or vector(0)) + (sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=\"chart_stream\" | unwrap delta_bytes [$__range])) or vector(0))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -1609,5 +1609,5 @@
   "timezone": "browser",
   "title": "Collection Stats",
   "uid": "tickrake-collection-stats",
-  "version": 1
+  "version": 19
 }

@@ -53,7 +53,8 @@
         {
           "expr": "sum by (symbol) (sum_over_time({job_name_from_file=~\"$job\"} | json | event=\"fetch_success\" | unwrap row_count [5m]))",
           "legendFormat": "{{symbol}}",
-          "refId": "A"
+          "refId": "A",
+          "step": "5m"
         }
       ],
       "fieldConfig": {
@@ -158,6 +159,7 @@
         "query": "label_values({job_name_from_file=~\".*spx.*|.*option.*|.*etf.*|.*stock.*\"}, job_name_from_file)",
         "refresh": 2,
         "includeAll": true,
+        "allValue": ".+",
         "multi": true,
         "current": { "text": "All", "value": "$__all" }
       }
