@@ -13,4 +13,4 @@ dated deployment evidence belong in `docs/notes/` or Git history, not here.
 | [0002](0002-tickrake-production-postgres.md) | Production Tickrake state uses PostgreSQL; SQLite remains available for development. |
 | [0003](0003-alloy-log-shipping.md) | Grafana Alloy ships logs to Loki; Promtail is fallback-only. |
 | [0004](0004-host-docker-stats-exporter.md) | Docker Desktop metrics come from a read-only host exporter. |
-| [0005](0005-minio-staging-tractatus-lakehouse.md) | Tickrake stages completed files to MinIO; Tractatus publishes to Glue/Iceberg and the MinIO cache. |
+| [0005](0005-minio-staging-tractatus-lakehouse.md) | A manual Tickrake-to-Tractatus workflow publishes to the local PostgreSQL Iceberg catalog and MinIO lakehouse, then purges remote staging. |
