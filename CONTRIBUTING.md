@@ -11,9 +11,9 @@ work to `docs/backlog/` using the `project-backlog` format.
 
 ## Development workflow
 
-Use the Makefile as the Compose entrypoint. `dev` and `prod` are separate
-Compose projects, but both use the same Docker Desktop host resources. Do not
-bring up the entire dev stack merely to validate a small change.
+Use the Makefile as the production Compose entrypoint. It selects the live
+`quant-infra-prod` project. Validate small changes without bringing up the
+entire production stack.
 
 Production is live. Use targeted commands and verify the exact service list
 before stopping, restarting, recreating, or broadly updating anything. Do not
