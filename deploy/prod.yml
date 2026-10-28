@@ -1,9 +1,10 @@
 name: quant-infra-prod
 
 services:
-  options_monitor:
-    ports:
-      - "8503:8501"
+  # TODO:
+  # options_monitor:
+  #   ports:
+  #     - "8503:8501"
 
   stock_options:
     depends_on:
@@ -133,6 +134,7 @@ services:
     ports:
       - "5432:5432"
 
+  # TODO:
   # mlflow:
   #   ports:
   #     - "5005:5000"
