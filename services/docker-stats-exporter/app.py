@@ -25,6 +25,25 @@ def metric_labels(labels: dict[str, str]) -> str:
     return "{" + ",".join(f'{key}="{escape_label(value)}"' for key, value in labels.items()) + "}"
 
 
+def memory_working_set_bytes(memory: dict[str, Any]) -> int:
+    """Return container memory usage excluding inactive filesystem cache, like docker stats."""
+    usage = int(memory.get("usage", 0))
+    stats = memory.get("stats") or {}
+
+    inactive_file = stats.get("total_inactive_file")
+    if inactive_file is not None:
+        inactive_file = int(inactive_file)
+        if 0 <= inactive_file < usage:
+            return usage - inactive_file
+
+    inactive_file = stats.get("inactive_file")
+    if inactive_file is not None:
+        inactive_file = int(inactive_file)
+        if 0 <= inactive_file < usage:
+            return usage - inactive_file
+    return usage
+
+
 def docker_get(path: str) -> Any:
     request = f"GET {path} HTTP/1.1\r\nHost: docker\r\nConnection: close\r\n\r\n".encode()
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
@@ -79,8 +98,10 @@ class DockerStatsCollector:
             "# TYPE docker_container_up gauge",
             "# HELP docker_container_cpu_cores CPU cores used between Docker statistics snapshots.",
             "# TYPE docker_container_cpu_cores gauge",
-            "# HELP docker_container_memory_usage_bytes Current container memory usage reported by Docker.",
+            "# HELP docker_container_memory_usage_bytes Total container memory usage reported by Docker, including filesystem cache.",
             "# TYPE docker_container_memory_usage_bytes gauge",
+            "# HELP docker_container_memory_working_set_bytes Container memory usage excluding inactive filesystem cache, matching docker stats.",
+            "# TYPE docker_container_memory_working_set_bytes gauge",
             "# HELP docker_container_memory_limit_bytes Container memory limit reported by Docker.",
             "# TYPE docker_container_memory_limit_bytes gauge",
             "# HELP docker_container_network_receive_bytes_total Cumulative network bytes received by the container.",
@@ -118,6 +139,7 @@ class DockerStatsCollector:
             stats = stats_by_id[container_id]
             memory = stats.get("memory_stats", {})
             lines.append(f"docker_container_memory_usage_bytes{rendered_labels} {memory.get('usage', 0)}")
+            lines.append(f"docker_container_memory_working_set_bytes{rendered_labels} {memory_working_set_bytes(memory)}")
             lines.append(f"docker_container_memory_limit_bytes{rendered_labels} {memory.get('limit', 0)}")
 
             cpu = stats.get("cpu_stats", {})
