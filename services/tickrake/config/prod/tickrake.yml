@@ -1,11 +1,31 @@
 timezone: America/Chicago
-sqlite_path: ~/.tickrake/tickrake.sqlite3
+
+# Database Configuration (Rails ActiveRecord convention)
 database:
-  backend: postgres
-  host: postgres
-  port: 5432
-  database: tickrake
-  user: tickrake_user
+  adapter: <%= ENV.fetch('TICKRAKE_DB_ADAPTER', 'postgresql') %>
+  host: <%= ENV.fetch('TICKRAKE_DB_HOST', 'postgres') %>
+  port: <%= ENV.fetch('TICKRAKE_DB_PORT', 5432) %>
+  database: <%= ENV.fetch('TICKRAKE_DB_NAME', 'tickrake') %>
+  user: <%= ENV.fetch('TICKRAKE_DB_USER', 'tickrake_user') %>
+  password: <%= ENV.fetch('PGPASSWORD', ENV.fetch('TICKRAKE_DB_PASSWORD', '')) %>
+
+# Target Datastores (MinIO or S3)
+staging_target:
+  type: <%= ENV.fetch('STAGING_DATASTORE_TYPE', 's3_compatible') %>
+  endpoint: <%= ENV.fetch('MINIO_ENDPOINT', 'http://minio:9000') %>
+  bucket: <%= ENV.fetch('TICKRAKE_STAGING_BUCKET', 'tickrake-staging') %>
+  access_key_id: <%= ENV.fetch('MINIO_ACCESS_KEY', 'minioadmin') %>
+  secret_access_key: <%= ENV.fetch('MINIO_SECRET_KEY', 'minioadmin') %>
+
+intraday_target:
+  type: <%= ENV.fetch('INTRADAY_DATASTORE_TYPE', 's3_compatible') %>
+  endpoint: <%= ENV.fetch('MINIO_ENDPOINT', 'http://minio:9000') %>
+  bucket: <%= ENV.fetch('TICKRAKE_INTRADAY_BUCKET', 'tickrake-intraday') %>
+  access_key_id: <%= ENV.fetch('MINIO_ACCESS_KEY', 'minioadmin') %>
+  secret_access_key: <%= ENV.fetch('MINIO_SECRET_KEY', 'minioadmin') %>
+
+storage:
+  data_dir: <%= ENV.fetch('TICKRAKE_DATA_DIR', '~/.tickrake/data') %>
 
 default_provider: ibkr-paper
 providers:
@@ -62,31 +82,6 @@ options:
   snapshot_filename_timezone: utc
   root_tickers:
     SPXW: SPX
-
-datastores:
-  s3_archive:
-    type: s3
-    bucket: tickrake
-    region: us-east-1
-    storage_class: GLACIER_IR
-  minio_intraday:
-    type: s3_compatible
-    endpoint: http://minio:9000
-    bucket: tickrake-intraday
-    region: us-east-1
-    access_key_id: minioadmin
-    secret_access_key: minioadmin
-    force_path_style: true
-  minio_staging:
-    type: s3_compatible
-    endpoint: http://minio:9000
-    bucket: tickrake-staging
-    region: us-east-1
-    access_key_id: minioadmin
-    secret_access_key: minioadmin
-    force_path_style: true
-storage:
-  data_dir: ~/.tickrake/data
 
 runtime:
   max_workers: 4
