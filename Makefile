@@ -45,13 +45,13 @@ publish-script-image:
 	docker buildx build --load --pull \
 	  --build-context tickrake=https://github.com/jwplatta/tickrake.git\#main \
 	  --build-context tractatus=https://github.com/jwplatta/tractatus.git\#main \
-	  -f services/scripts/Dockerfile -t quant-infra-publish-day:latest .
+	  -f services/publish-lakehouse/Dockerfile -t quant-infra-publish-day:latest .
 
 publish-options-day:
-	bash services/scripts/run-one-off.sh options $(DATE)
+	bash services/publish-lakehouse/run-one-off.sh options $(DATE)
 
 publish-level-one-day:
-	bash services/scripts/run-one-off.sh level_one $(DATE)
+	bash services/publish-lakehouse/run-one-off.sh level_one $(DATE)
 
 publish-order-book-day:
-	bash services/scripts/run-one-off.sh order_book $(DATE)
+	bash services/publish-lakehouse/run-one-off.sh order_book $(DATE)
