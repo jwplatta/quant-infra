@@ -9,12 +9,14 @@ trailers to commits, documentation, or pull requests.
 
 - `services/` contains service-specific Compose definitions and configuration.
   - `services/tickrake/` contains Tickrake jobs plus versioned dev/prod config.
-  - `services/monitoring/` contains Grafana, Prometheus, Loki, Promtail, and
+  - `services/monitoring/` contains Grafana, Prometheus, Loki, Alloy, and
     monitoring configuration.
   - `services/docker-stats-exporter/` contains the host-side Docker Desktop
     metrics exporter and its launchd definition.
-- `deploy/dev.yml` and `deploy/prod.yml` are environment-specific Compose
-  overlays; do not put shared service definitions there.
+  - `services/publish-lakehouse/` contains the one-off container and scripts
+    for staging and publishing a selected dataset and date.
+- `deploy/prod.yml` contains production Compose overrides; keep shared service
+  definitions under `services/`.
 - `envs/` contains ignored local environment files and tracked examples. Never
   commit credentials or copy user credential directories into the repository.
 - `docs/plans/` holds implementation plans for multi-step changes.
@@ -23,13 +25,10 @@ trailers to commits, documentation, or pull requests.
 
 ## Makefile and environments
 
-The `Makefile` composes the service files and environment overlay. Use it to
-inspect or operate a profile:
-
-- `make dev-*` uses the isolated `quant-infra-dev` project.
-- `make prod-*` uses the live `quant-infra-prod` project.
-- `make research-*` starts only Postgres and MLflow.
-- `make data-ingestion-*` runs production collection without the full UI stack.
+The `Makefile` composes the configured service files with the production
+overlay. Its `make prod-*` targets use the live `quant-infra-prod` project.
+The retired dev, research, and data-ingestion profiles are not part of the
+Makefile or active Compose service definitions.
 
 Treat production as live. Before any command that can recreate, restart, stop,
 or broadly update services, identify the exact Compose targets. Prefer
