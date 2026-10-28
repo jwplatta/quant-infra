@@ -43,6 +43,17 @@ before implementation. Record operational discoveries, runbooks, and design
 decisions in `docs/notes/`. Keep both focused and current; do not create
 placeholder documents.
 
+Start new notes and plans with YAML front matter containing an ISO date, a
+one-sentence description, and no more than two tags:
+
+```yaml
+---
+date: YYYY-MM-DD
+description: Brief summary of the document.
+tags: [tag-one, tag-two]
+---
+```
+
 Use the `project-backlog` skill for backlog work. Backlog items must follow its
 YAML-frontmatter format, be actionable, and live in `docs/backlog/`. Set the
 item source to the repository or workstream, not an agent identity.
