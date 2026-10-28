@@ -2,7 +2,6 @@ services:
   options_monitor:
     build:
       context: https://github.com/jwplatta/options-monitor.git#main
-    profiles: [dev]
     env_file:
       - envs/${ENV}.env
     environment:

@@ -2,7 +2,7 @@ services:
   storage_metrics_exporter:
     build:
       context: ./services/monitoring/storage_metrics_exporter
-    profiles: [dev, prod, data-ingestion]
+    profiles: [prod]
     environment:
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: minioadmin
@@ -15,7 +15,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.53.0
-    profiles: [dev, prod, data-ingestion]
+    profiles: [prod]
     volumes:
       - ./services/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -23,7 +23,7 @@ services:
 
   loki:
     image: grafana/loki:3.1.0
-    profiles: [dev, prod, data-ingestion]
+    profiles: [prod]
     command: -config.file=/etc/loki/loki-config.yml
     volumes:
       - ./services/monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
@@ -32,7 +32,7 @@ services:
 
   alloy:
     image: grafana/alloy:v1.20.1
-    profiles: [dev, prod, data-ingestion]
+    profiles: [prod]
     command:
       - run
       - --server.http.listen-addr=0.0.0.0:12345
@@ -46,7 +46,7 @@ services:
 
   grafana:
     image: grafana/grafana:11.1.0
-    profiles: [dev, prod]
+    profiles: [prod]
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin

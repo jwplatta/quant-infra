@@ -17,63 +17,63 @@ x-tickrake-environment: &tickrake-environment
 services:
   stock_options:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/stock_options.rb
 
   etf_options:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/etf_options.rb
 
   0-4dte_options:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/0-4dte_options.rb
 
   index_short_dated_options:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/index_short_dated_options.rb
 
   index_longer_dated_options:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/index_longer_dated_options.rb
 
   futures_candles:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/futures_candles.rb
 
   market_streams:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/market_streams.rb
 
   metadata_sync:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/metadata_sync.rb
 
   intraday_publisher:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     depends_on:
       - minio
     environment:
@@ -82,7 +82,7 @@ services:
 
   # staging_publisher:
   #   <<: *tickrake-base
-  #   profiles: [prod, data-ingestion]
+  #   profiles: [prod]
   #   depends_on:
   #     - minio
   #   environment:
@@ -91,14 +91,14 @@ services:
 
   economic_events:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/economic_events.rb
 
   fundamentals:
     <<: *tickrake-base
-    profiles: [prod, data-ingestion]
+    profiles: [prod]
     environment:
       <<: *tickrake-environment
       TICKRAKE_JOB_FILE: /jobs/prod/fundamentals.rb

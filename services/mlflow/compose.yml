@@ -3,7 +3,7 @@ services: {}
   # mlflow:
   #   build:
   #     context: ./services/mlflow
-  #   profiles: [dev, prod, research]
+  #   profiles: [prod]
   #   command: >
   #     mlflow server
   #     --host 0.0.0.0
