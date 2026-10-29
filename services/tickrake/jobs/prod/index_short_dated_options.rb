@@ -9,8 +9,8 @@ Tickrake.job "index_short_dated_options" do
 
   schedule do
     every 5.minutes
-    weekdays from: "06:31", to: "8:25"
-    weekdays from: "08:31", to: "15:15"
+    weekdays from: "06:31", to: "8:21"
+    weekdays from: "08:31", to: "15:11"
   end
 
   options do
