@@ -5,11 +5,11 @@ require "tickrake"
 
 Tickrake.job "stock_options" do
   provider :schwab
-  universe "stock_option_symbols"
+  universe "stock_options_standard_frequency_symbols"
 
   schedule do
-    every 5.minutes
-    weekdays from: "08:34", to: "15:04"
+    every 10.minutes
+    weekdays from: "08:35", to: "15:05"
   end
 
   options do

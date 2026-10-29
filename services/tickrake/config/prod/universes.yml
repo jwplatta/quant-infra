@@ -21,6 +21,9 @@ universes:
   stock_option_symbols:
     file: universes/stock_option_symbols.yml
 
+  stock_options_high_frequency_symbols:
+    file: universes/stock_options_high_frequency_symbols.yml
+
   etf_option_symbols:
     file: universes/etf_option_symbols.yml
 
