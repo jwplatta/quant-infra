@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Publish one dataset and date through Tickrake and Tractatus.
 
-publish_day() {
+publish_day() (
   set -euo pipefail
   umask 077
   local dataset=$1
@@ -30,7 +30,15 @@ publish_day() {
   [[ $# -le 1 ]] || fail 'expected zero or one YYYY-MM-DD date argument'
   [[ $sample_date =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || fail "invalid date: $sample_date"
   [[ $(date -u -d "$sample_date" +%F 2>/dev/null) == "$sample_date" ]] || fail "invalid date: $sample_date"
-  [[ $sample_date < $(date -u +%F) ]] || fail "UTC date $sample_date is still open; run after 00:00 UTC"
+  if [[ $dataset == options ]]; then
+    local chicago_date chicago_time
+    chicago_date=$(TZ=America/Chicago date +%F)
+    chicago_time=$(TZ=America/Chicago date +%H%M)
+    [[ $sample_date < $chicago_date || ( $sample_date == "$chicago_date" && $chicago_time > 1559 ) ]] || \
+      fail "options date $sample_date is still open; run after 16:00 America/Chicago"
+  else
+    [[ $sample_date < $(date -u +%F) ]] || fail "UTC date $sample_date is still open; run after 00:00 UTC"
+  fi
 
   local required
   for required in TICKRAKE_CONFIG ICEBERG_POSTGRES_URL MINIO_ENDPOINT \
@@ -104,6 +112,6 @@ publish_day() {
     --dataset "$dataset" --remote
   completed=true
   exit 0
-}
+)
 
 publish_day "$@"
