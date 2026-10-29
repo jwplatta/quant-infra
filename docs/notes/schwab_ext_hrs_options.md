@@ -71,7 +71,7 @@ not a statement that the schedule or every symbol is implemented or validated.
 - symbol: XLF
 ```
 
-## Fri Extended Hours
+## Extended Hours
 
 ```yaml
 - symbol: BABA
