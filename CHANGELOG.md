@@ -9,6 +9,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Added a MinIO bucket storage dashboard using scanner-reported bytes, object counts, and update freshness.
+
 - Consolidated date-scoped Tickrake staging, Tractatus lakehouse publishing,
   and remote-only staging cleanup into one shared one-off container script for
   options, Level One, and order book.
@@ -30,6 +32,10 @@ and this project uses [Semantic Versioning](https://semver.org/).
   WebSocket connection.
 
 ### Changed
+
+- Removed the unused recursive MinIO prefix inventory and made bucket metrics registration independent of MinIO startup.
+
+- Updated Collection Stats with per-dataset raw writes, cache Parquet output, and raw-to-Parquet ratios using Tractatus publication telemetry.
 
 - Simplified the Makefile to production lifecycle, targeted service start/stop,
   utilities, and one-off publication commands; retired dev, research, and

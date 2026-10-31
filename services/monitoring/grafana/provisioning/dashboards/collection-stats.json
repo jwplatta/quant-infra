@@ -3,21 +3,21 @@
   "graphTooltip": 1,
   "panels": [
     {
-      "title": "Totals / Raw Written",
-      "description": "Sum of batch byte counts and streaming Level One, order book, and chart stream byte deltas over the selected time range.",
+      "title": "Total / Raw Written",
+      "description": "Raw bytes written over the selected range, excluding batch candle rewrites; includes streaming chart writes. Other overwritten files count each write.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
         "x": 0,
-        "y": 0
+        "y": 0,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "(sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | unwrap byte_count [$__range])) or vector(0)) + (sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=~\"level_one|order_book|chart_stream\" | unwrap delta_bytes [$__range])) or vector(0))",
+          "expr": "(sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written\" | data_type!=\"candles\" | unwrap byte_count [$__range])) or vector(0)) + (sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=~\"level_one|order_book|chart_stream\" | unwrap delta_bytes [$__range])) or vector(0))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -44,71 +44,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 1
     },
     {
-      "title": "Totals / Staging Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Total / Raw Converted",
+      "description": "Raw input bytes read by successful Tractatus publication groups over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 5,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "minio_storage_object_bytes{bucket=\"tickrake-staging\",dataset=\"Totals\"}",
-          "legendFormat": "{{dataset}}",
-          "refId": "A",
-          "instant": true,
-          "format": "table"
-        }
-      ],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "noValue": "No data",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#AEB6C2"
-          }
-        },
-        "overrides": []
-      }
-    },
-    {
-      "title": "Totals / Written to Parquet",
-      "description": "Sum of Iceberg Parquet bytes added over the selected time range.",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 10,
-        "y": 0
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=~\".+\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | unwrap input_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -135,29 +89,27 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 2
     },
     {
-      "title": "Totals / Tractatus Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Total / Parquet Written",
+      "description": "Cache Parquet bytes from successful Tractatus group publication events over the selected time range. Missing cache measurements are unavailable.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 15,
-        "y": 0
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki"
       },
       "targets": [
         {
-          "expr": "minio_storage_object_bytes{bucket=\"tractatus-lakehouse\",dataset=\"Totals\"}",
-          "legendFormat": "{{dataset}}",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
-          "instant": true,
-          "format": "table"
+          "queryType": "instant"
         }
       ],
       "options": {
@@ -178,28 +130,29 @@
           "noValue": "No data",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#687484"
+            "fixedColor": "#8B95A3"
           }
         },
         "overrides": []
-      }
+      },
+      "id": 3
     },
     {
-      "title": "Totals / Ratio of Raw Written to Parquet",
-      "description": "Source bytes divided by Parquet bytes from matching file_committed events in the selected time range.",
+      "title": "Total / Ratio",
+      "description": "Raw input bytes divided by cache Parquet bytes for the same publication groups with measured positive cache bytes. Groups without cache measurements are excluded.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 0
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=~\".+\" | unwrap source_bytes [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=~\".+\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | cache_bytes > 0 | __error__=\"\" | unwrap input_bytes | __error__=\"\" [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | cache_bytes > 0 | __error__=\"\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -227,24 +180,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 4
     },
     {
       "title": "Options / Raw Written",
       "description": "Sum of Tickrake byte_count events over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
         "x": 0,
-        "y": 4
+        "y": 4,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"options\" | unwrap byte_count [$__range]))",
+          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written\" | data_type=\"options\" | unwrap byte_count [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -271,71 +225,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 5
     },
     {
-      "title": "Options / Staging Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Options / Raw Converted",
+      "description": "Raw input bytes read by successful Tractatus publication groups over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 5,
-        "y": 4
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "minio_storage_object_bytes{bucket=\"tickrake-staging\",dataset=\"options\"}",
-          "legendFormat": "{{dataset}}",
-          "refId": "A",
-          "instant": true,
-          "format": "table"
-        }
-      ],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "noValue": "No data",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#80B1FF"
-          }
-        },
-        "overrides": []
-      }
-    },
-    {
-      "title": "Options / Written to Parquet",
-      "description": "Sum of Iceberg Parquet bytes added over the selected time range.",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 10,
-        "y": 4
+        "x": 6,
+        "y": 4,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"options\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"options\" | unwrap input_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -362,29 +270,27 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 6
     },
     {
-      "title": "Options / Tractatus Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Options / Parquet Written",
+      "description": "Cache Parquet bytes from successful Tractatus group publication events over the selected time range. Missing cache measurements are unavailable.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 15,
-        "y": 4
+        "x": 12,
+        "y": 4,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki"
       },
       "targets": [
         {
-          "expr": "minio_storage_object_bytes{bucket=\"tractatus-lakehouse\",dataset=\"options\"}",
-          "legendFormat": "{{dataset}}",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"options\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
-          "instant": true,
-          "format": "table"
+          "queryType": "instant"
         }
       ],
       "options": {
@@ -405,28 +311,29 @@
           "noValue": "No data",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#3574D4"
+            "fixedColor": "#5794F2"
           }
         },
         "overrides": []
-      }
+      },
+      "id": 7
     },
     {
-      "title": "Options / Ratio of Raw Written to Parquet",
-      "description": "Source bytes divided by Parquet bytes from matching file_committed events in the selected time range.",
+      "title": "Options / Ratio",
+      "description": "Raw input bytes divided by cache Parquet bytes for the same publication groups with measured positive cache bytes. Groups without cache measurements are excluded.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 4
+        "x": 18,
+        "y": 4,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"options\" | unwrap source_bytes [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"options\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"options\" | cache_bytes > 0 | __error__=\"\" | unwrap input_bytes | __error__=\"\" [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"options\" | cache_bytes > 0 | __error__=\"\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -454,24 +361,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 8
     },
     {
       "title": "Level One / Raw Written",
       "description": "Batch byte counts and streaming Level One byte deltas over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
         "x": 0,
-        "y": 8
+        "y": 8,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "(sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"level_one\" | unwrap byte_count [$__range])) or vector(0)) + (sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=\"level_one\" | unwrap delta_bytes [$__range])) or vector(0))",
+          "expr": "(sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written\" | data_type=\"level_one\" | unwrap byte_count [$__range])) or vector(0)) + (sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=\"level_one\" | unwrap delta_bytes [$__range])) or vector(0))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -498,71 +406,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 9
     },
     {
-      "title": "Level One / Staging Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Level One / Raw Converted",
+      "description": "Raw input bytes read by successful Tractatus publication groups over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 5,
-        "y": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "minio_storage_object_bytes{bucket=\"tickrake-staging\",dataset=\"level_one\"}",
-          "legendFormat": "{{dataset}}",
-          "refId": "A",
-          "instant": true,
-          "format": "table"
-        }
-      ],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "noValue": "No data",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#D2A4E9"
-          }
-        },
-        "overrides": []
-      }
-    },
-    {
-      "title": "Level One / Written to Parquet",
-      "description": "Sum of Iceberg Parquet bytes added over the selected time range.",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 10,
-        "y": 8
+        "x": 6,
+        "y": 8,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=~\"level_one_equities|level_one_futures\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"level_one_equities|level_one_futures\" | unwrap input_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -589,29 +451,27 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 10
     },
     {
-      "title": "Level One / Tractatus Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Level One / Parquet Written",
+      "description": "Cache Parquet bytes from successful Tractatus group publication events over the selected time range. Missing cache measurements are unavailable.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 15,
-        "y": 8
+        "x": 12,
+        "y": 8,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki"
       },
       "targets": [
         {
-          "expr": "minio_storage_object_bytes{bucket=\"tractatus-lakehouse\",dataset=\"level_one\"}",
-          "legendFormat": "{{dataset}}",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"level_one_equities|level_one_futures\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
-          "instant": true,
-          "format": "table"
+          "queryType": "instant"
         }
       ],
       "options": {
@@ -632,28 +492,29 @@
           "noValue": "No data",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#9958BA"
+            "fixedColor": "#B877D9"
           }
         },
         "overrides": []
-      }
+      },
+      "id": 11
     },
     {
-      "title": "Level One / Ratio of Raw Written to Parquet",
-      "description": "Source bytes divided by Parquet bytes from matching file_committed events in the selected time range.",
+      "title": "Level One / Ratio",
+      "description": "Raw input bytes divided by cache Parquet bytes for the same publication groups with measured positive cache bytes. Groups without cache measurements are excluded.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 8
+        "x": 18,
+        "y": 8,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=~\"level_one_equities|level_one_futures\" | unwrap source_bytes [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=~\"level_one_equities|level_one_futures\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"level_one_equities|level_one_futures\" | cache_bytes > 0 | __error__=\"\" | unwrap input_bytes | __error__=\"\" [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"level_one_equities|level_one_futures\" | cache_bytes > 0 | __error__=\"\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -681,17 +542,18 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 12
     },
     {
       "title": "Order Book / Raw Written",
       "description": "Sum of streaming order book byte deltas over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
         "x": 0,
-        "y": 12
+        "y": 12,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
@@ -725,71 +587,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 13
     },
     {
-      "title": "Order Book / Staging Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Order Book / Raw Converted",
+      "description": "Raw input bytes read by successful Tractatus publication groups over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 5,
-        "y": 12
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "minio_storage_object_bytes{bucket=\"tickrake-staging\",dataset=\"order_book\"}",
-          "legendFormat": "{{dataset}}",
-          "refId": "A",
-          "instant": true,
-          "format": "table"
-        }
-      ],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "noValue": "No data",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#FFB66E"
-          }
-        },
-        "overrides": []
-      }
-    },
-    {
-      "title": "Order Book / Written to Parquet",
-      "description": "Sum of Iceberg Parquet bytes added over the selected time range.",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 10,
-        "y": 12
+        "x": 6,
+        "y": 12,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"order_book\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"order_book\" | unwrap input_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -816,29 +632,27 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 14
     },
     {
-      "title": "Order Book / Tractatus Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Order Book / Parquet Written",
+      "description": "Cache Parquet bytes from successful Tractatus group publication events over the selected time range. Missing cache measurements are unavailable.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 15,
-        "y": 12
+        "x": 12,
+        "y": 12,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki"
       },
       "targets": [
         {
-          "expr": "minio_storage_object_bytes{bucket=\"tractatus-lakehouse\",dataset=\"order_book\"}",
-          "legendFormat": "{{dataset}}",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"order_book\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
-          "instant": true,
-          "format": "table"
+          "queryType": "instant"
         }
       ],
       "options": {
@@ -859,28 +673,29 @@
           "noValue": "No data",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#D87912"
+            "fixedColor": "#FF9830"
           }
         },
         "overrides": []
-      }
+      },
+      "id": 15
     },
     {
-      "title": "Order Book / Ratio of Raw Written to Parquet",
-      "description": "Source bytes divided by Parquet bytes from matching file_committed events in the selected time range.",
+      "title": "Order Book / Ratio",
+      "description": "Raw input bytes divided by cache Parquet bytes for the same publication groups with measured positive cache bytes. Groups without cache measurements are excluded.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 12
+        "x": 18,
+        "y": 12,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"order_book\" | unwrap source_bytes [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"order_book\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"order_book\" | cache_bytes > 0 | __error__=\"\" | unwrap input_bytes | __error__=\"\" [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"order_book\" | cache_bytes > 0 | __error__=\"\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -908,24 +723,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 16
     },
     {
       "title": "Candles / Raw Written",
-      "description": "Batch candle byte counts and chart stream byte deltas over the selected time range.",
+      "description": "Streaming chart bytes only. Batch candle write sizes are excluded because they include previously written bars.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
         "x": 0,
-        "y": 16
+        "y": 16,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "(sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"candles\" | unwrap byte_count [$__range])) or vector(0)) + (sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=\"chart_stream\" | unwrap delta_bytes [$__range])) or vector(0))",
+          "expr": "sum(sum_over_time({job_name_from_file=\"market_streams\"} | json | event=\"stream_bytes_written\" | dataset_type=\"chart_stream\" | unwrap delta_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -952,71 +768,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 17
     },
     {
-      "title": "Candles / Staging Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Candles / Raw Converted",
+      "description": "Raw input bytes read by successful Tractatus publication groups over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 5,
-        "y": 16
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "minio_storage_object_bytes{bucket=\"tickrake-staging\",dataset=\"candles\"}",
-          "legendFormat": "{{dataset}}",
-          "refId": "A",
-          "instant": true,
-          "format": "table"
-        }
-      ],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "noValue": "No data",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#8AE3E3"
-          }
-        },
-        "overrides": []
-      }
-    },
-    {
-      "title": "Candles / Written to Parquet",
-      "description": "Sum of Iceberg Parquet bytes added over the selected time range.",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 10,
-        "y": 16
+        "x": 6,
+        "y": 16,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"candles\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"candles\" | unwrap input_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -1043,29 +813,27 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 18
     },
     {
-      "title": "Candles / Tractatus Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Candles / Parquet Written",
+      "description": "Cache Parquet bytes from successful Tractatus group publication events over the selected time range. Missing cache measurements are unavailable.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 15,
-        "y": 16
+        "x": 12,
+        "y": 16,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki"
       },
       "targets": [
         {
-          "expr": "minio_storage_object_bytes{bucket=\"tractatus-lakehouse\",dataset=\"candles\"}",
-          "legendFormat": "{{dataset}}",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"candles\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
-          "instant": true,
-          "format": "table"
+          "queryType": "instant"
         }
       ],
       "options": {
@@ -1086,28 +854,29 @@
           "noValue": "No data",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#2EB8B8"
+            "fixedColor": "#56D6D6"
           }
         },
         "overrides": []
-      }
+      },
+      "id": 19
     },
     {
-      "title": "Candles / Ratio of Raw Written to Parquet",
-      "description": "Source bytes divided by Parquet bytes from matching file_committed events in the selected time range.",
+      "title": "Candles / Ratio",
+      "description": "Raw input bytes divided by cache Parquet bytes for the same publication groups with measured positive cache bytes. Groups without cache measurements are excluded.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 16
+        "x": 18,
+        "y": 16,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"candles\" | unwrap source_bytes [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"candles\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"candles\" | cache_bytes > 0 | __error__=\"\" | unwrap input_bytes | __error__=\"\" [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"candles\" | cache_bytes > 0 | __error__=\"\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -1135,24 +904,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 20
     },
     {
       "title": "Fundamentals / Raw Written",
       "description": "Sum of Tickrake byte_count events over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
         "x": 0,
-        "y": 20
+        "y": 20,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"fundamentals\" | unwrap byte_count [$__range]))",
+          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written\" | data_type=\"fundamentals\" | unwrap byte_count [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -1179,71 +949,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 21
     },
     {
-      "title": "Fundamentals / Staging Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Fundamentals / Raw Converted",
+      "description": "Raw input bytes read by successful Tractatus publication groups over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 5,
-        "y": 20
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "minio_storage_object_bytes{bucket=\"tickrake-staging\",dataset=\"fundamentals\"}",
-          "legendFormat": "{{dataset}}",
-          "refId": "A",
-          "instant": true,
-          "format": "table"
-        }
-      ],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "noValue": "No data",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#FFEB70"
-          }
-        },
-        "overrides": []
-      }
-    },
-    {
-      "title": "Fundamentals / Written to Parquet",
-      "description": "Sum of Iceberg Parquet bytes added over the selected time range.",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 10,
-        "y": 20
+        "x": 6,
+        "y": 20,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"fundamentals\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"fundamentals\" | unwrap input_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -1270,29 +994,27 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 22
     },
     {
-      "title": "Fundamentals / Tractatus Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Fundamentals / Parquet Written",
+      "description": "Cache Parquet bytes from successful Tractatus group publication events over the selected time range. Missing cache measurements are unavailable.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 15,
-        "y": 20
+        "x": 12,
+        "y": 20,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki"
       },
       "targets": [
         {
-          "expr": "minio_storage_object_bytes{bucket=\"tractatus-lakehouse\",dataset=\"fundamentals\"}",
-          "legendFormat": "{{dataset}}",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"fundamentals\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
-          "instant": true,
-          "format": "table"
+          "queryType": "instant"
         }
       ],
       "options": {
@@ -1313,28 +1035,29 @@
           "noValue": "No data",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#D1B414"
+            "fixedColor": "#FADE2A"
           }
         },
         "overrides": []
-      }
+      },
+      "id": 23
     },
     {
-      "title": "Fundamentals / Ratio of Raw Written to Parquet",
-      "description": "Source bytes divided by Parquet bytes from matching file_committed events in the selected time range.",
+      "title": "Fundamentals / Ratio",
+      "description": "Raw input bytes divided by cache Parquet bytes for the same publication groups with measured positive cache bytes. Groups without cache measurements are excluded.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 20
+        "x": 18,
+        "y": 20,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"fundamentals\" | unwrap source_bytes [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"fundamentals\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"fundamentals\" | cache_bytes > 0 | __error__=\"\" | unwrap input_bytes | __error__=\"\" [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"fundamentals\" | cache_bytes > 0 | __error__=\"\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -1362,24 +1085,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 24
     },
     {
       "title": "Economic Events / Raw Written",
       "description": "Sum of Tickrake byte_count events over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
         "x": 0,
-        "y": 24
+        "y": 24,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written|file_rotated\" | data_type=\"economic_events\" | unwrap byte_count [$__range]))",
+          "expr": "sum(sum_over_time({job_name_from_file=~\".+\"} | json | event=~\"fetch_success|file_written\" | data_type=\"economic_events\" | unwrap byte_count [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -1406,71 +1130,25 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 25
     },
     {
-      "title": "Economic Events / Staging Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Economic Events / Raw Converted",
+      "description": "Raw input bytes read by successful Tractatus publication groups over the selected time range.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 5,
-        "y": 24
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "minio_storage_object_bytes{bucket=\"tickrake-staging\",dataset=\"economic_events\"}",
-          "legendFormat": "{{dataset}}",
-          "refId": "A",
-          "instant": true,
-          "format": "table"
-        }
-      ],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "noValue": "No data",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#FF9EAA"
-          }
-        },
-        "overrides": []
-      }
-    },
-    {
-      "title": "Economic Events / Written to Parquet",
-      "description": "Sum of Iceberg Parquet bytes added over the selected time range.",
-      "type": "stat",
-      "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 10,
-        "y": 24
+        "x": 6,
+        "y": 24,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"economic_events\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"economic_events\" | unwrap input_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -1497,29 +1175,27 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 26
     },
     {
-      "title": "Economic Events / Tractatus Cache",
-      "description": "Current object bytes from the daily MinIO inventory scan.",
+      "title": "Economic Events / Parquet Written",
+      "description": "Cache Parquet bytes from successful Tractatus group publication events over the selected time range. Missing cache measurements are unavailable.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 15,
-        "y": 24
+        "x": 12,
+        "y": 24,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "loki"
       },
       "targets": [
         {
-          "expr": "minio_storage_object_bytes{bucket=\"tractatus-lakehouse\",dataset=\"economic_events\"}",
-          "legendFormat": "{{dataset}}",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"economic_events\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
-          "instant": true,
-          "format": "table"
+          "queryType": "instant"
         }
       ],
       "options": {
@@ -1540,28 +1216,29 @@
           "noValue": "No data",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#D94F60"
+            "fixedColor": "#FF7383"
           }
         },
         "overrides": []
-      }
+      },
+      "id": 27
     },
     {
-      "title": "Economic Events / Ratio of Raw Written to Parquet",
-      "description": "Source bytes divided by Parquet bytes from matching file_committed events in the selected time range.",
+      "title": "Economic Events / Ratio",
+      "description": "Raw input bytes divided by cache Parquet bytes for the same publication groups with measured positive cache bytes. Groups without cache measurements are excluded.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 24
+        "x": 18,
+        "y": 24,
+        "w": 6,
+        "h": 4
       },
       "datasource": {
         "type": "loki"
       },
       "targets": [
         {
-          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"economic_events\" | unwrap source_bytes [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"file_committed\" | table=\"economic_events\" | unwrap parquet_bytes_added [$__range]))",
+          "expr": "sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"economic_events\" | cache_bytes > 0 | __error__=\"\" | unwrap input_bytes | __error__=\"\" [$__range])) / sum(sum_over_time({service=\"tractatus\"} | json | event=\"group_committed\" | table=~\"economic_events\" | cache_bytes > 0 | __error__=\"\" | unwrap cache_bytes | __error__=\"\" [$__range]))",
           "refId": "A",
           "queryType": "instant"
         }
@@ -1589,7 +1266,8 @@
           }
         },
         "overrides": []
-      }
+      },
+      "id": 28
     }
   ],
   "refresh": "30s",
@@ -1603,10 +1281,10 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
-    "to": "now"
+    "from": "now-1d/d",
+    "to": "now/d"
   },
-  "timezone": "browser",
+  "timezone": "America/Chicago",
   "title": "Collection Stats",
   "uid": "tickrake-collection-stats",
   "version": 19
