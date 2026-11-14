@@ -8,6 +8,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Include the options level-one table in daily lakehouse publication and ledger verification.
 
 - Added a MinIO bucket storage dashboard using scanner-reported bytes, object counts, and update freshness.
 
