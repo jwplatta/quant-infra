@@ -78,7 +78,7 @@ publish_day() (
   local tables=() table_filter=''
   case $dataset in
     options) tables=(options); table_filter="'options'" ;;
-    level_one) tables=(level_one_equities level_one_futures); table_filter="'level_one_equities','level_one_futures'" ;;
+    level_one) tables=(level_one_equities level_one_futures level_one_options); table_filter="'level_one_equities','level_one_futures','level_one_options'" ;;
     order_book) tables=(order_book); table_filter="'order_book'" ;;
   esac
   for table in "${tables[@]}"; do
