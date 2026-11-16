@@ -45,10 +45,57 @@ Tickrake.job "market_streams" do
         expirations front: 1
         re_resolve_interval 5
       end
+      schedule { weekdays from: "08:30", to: "15:00" }
+    end
+
+    level_one "spy_0dte_level_one" do
+      services [:level_one_options]
+      contracts do
+        underlying "SPY"
+        atm_points 10
+        expirations front: 1
+        re_resolve_interval 5
+      end
       schedule do
         weekdays from: "06:30", to: "08:20"
         weekdays from: "08:30", to: "15:00"
       end
+    end
+
+    order_book "spy_0dte_order_book" do
+      services [:OPTIONS_BOOK]
+      contracts do
+        underlying "SPY"
+        atm_points 10
+        expirations front: 1
+        re_resolve_interval 5
+      end
+      schedule { weekdays from: "08:30", to: "15:00" }
+    end
+
+    level_one "qqq_0dte_level_one" do
+      services [:level_one_options]
+      contracts do
+        underlying "QQQ"
+        atm_points 10
+        expirations front: 1
+        re_resolve_interval 5
+      end
+      schedule do
+        weekdays from: "06:30", to: "08:20"
+        weekdays from: "08:30", to: "15:00"
+      end
+    end
+
+    order_book "qqq_0dte_order_book" do
+      services [:OPTIONS_BOOK]
+      contracts do
+        underlying "QQQ"
+        atm_points 10
+        expirations front: 1
+        re_resolve_interval 5
+      end
+      schedule { weekdays from: "08:30", to: "15:00" }
     end
 
     chart_stream "equity_chart_streams" do
