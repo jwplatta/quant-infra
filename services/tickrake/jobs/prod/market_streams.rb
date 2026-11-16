@@ -21,6 +21,36 @@ Tickrake.job "market_streams" do
       schedule { weekdays from: "08:30", to: "15:00" }
     end
 
+    level_one "spxw_0dte_level_one" do
+      services [:level_one_options]
+      contracts do
+        underlying "SPX"
+        option_root "SPXW"
+        atm_points 50
+        expirations front: 1
+        re_resolve_interval 5
+      end
+      schedule do
+        weekdays from: "06:30", to: "08:20"
+        weekdays from: "08:30", to: "15:00"
+      end
+    end
+
+    order_book "spxw_0dte_order_book" do
+      services [:OPTIONS_BOOK]
+      contracts do
+        underlying "SPX"
+        option_root "SPXW"
+        atm_points 50
+        expirations front: 1
+        re_resolve_interval 5
+      end
+      schedule do
+        weekdays from: "06:30", to: "08:20"
+        weekdays from: "08:30", to: "15:00"
+      end
+    end
+
     chart_stream "equity_chart_streams" do
       symbols "$SPX", "$VIX"
       services [:chart_equity]
