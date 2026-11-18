@@ -27,7 +27,7 @@ services:
     profiles: [prod]
     environment:
       <<: *tickrake-environment
-      TICKRAKE_JOB_FILE: /jobs/prod/stock_options_freq.rb
+      TICKRAKE_JOB_FILE: /jobs/prod/stock_options_high_frequency.rb
 
   etf_options:
     <<: *tickrake-base
