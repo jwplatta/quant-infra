@@ -18,6 +18,16 @@ services:
       - ~/.schwab_rb:/root/.schwab_rb
       - ~/.aws:/root/.aws:ro
 
+  stock_options_high_frequency:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./services/tickrake/jobs:/jobs:ro
+      - ~/.tickrake:/root/.tickrake
+      - ~/.schwab_rb:/root/.schwab_rb
+      - ~/.aws:/root/.aws:ro
+
   etf_options:
     depends_on:
       postgres:
