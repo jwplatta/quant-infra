@@ -99,7 +99,7 @@ Tickrake.job "market_streams" do
     end
 
     chart_stream "equity_chart_streams" do
-      symbols "$SPX", "$VIX"
+      symbols "$SPX", "$VIX", "SPY", "QQQ", "IWM"
       services [:chart_equity]
       flush_interval 120
       schedule { weekdays from: "08:30", to: "15:00" }
